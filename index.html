@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Три в ряд</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f0e8;
+      --ink: #1f2528;
+      --muted: #657078;
+      --panel: #ffffff;
+      --line: #d9d2c5;
+      --cell: #e8dfd2;
+      --shadow: 0 18px 45px rgba(43, 35, 24, 0.14);
+      --red: #e64b5d;
+      --yellow: #f2b93f;
+      --green: #43b978;
+      --blue: #3a7bd5;
+      --violet: #8a62d6;
+      --cyan: #31b9c7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.72), rgba(255,255,255,0) 42%),
+        var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+
+    main {
+      width: min(94vw, 760px);
+      display: grid;
+      gap: 16px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.76);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 4vw, 42px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .score {
+      min-width: 132px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      font-weight: 800;
+      text-align: center;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .new-game {
+      border: 0;
+      background: #20262b;
+      color: white;
+      padding: 10px 13px;
+      cursor: pointer;
+      font-weight: 750;
+    }
+
+    .new-game:hover {
+      background: #313941;
+    }
+
+    .game {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 220px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .board-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      padding: clamp(8px, 1.8vw, 14px);
+      background: #cfc3b3;
+      border: 1px solid #b9ad9d;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .board {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      grid-template-rows: repeat(8, minmax(0, 1fr));
+      gap: clamp(4px, 1vw, 8px);
+    }
+
+    .cell {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      border: 0;
+      background: var(--cell);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      padding: 8%;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+      touch-action: none;
+      overflow: visible;
+    }
+
+    .cell:hover {
+      transform: translateY(-1px);
+      box-shadow: inset 0 0 0 2px rgba(31,37,40,0.14);
+    }
+
+    .cell.selected {
+      background: #fff7df;
+      box-shadow: inset 0 0 0 3px #20262b;
+    }
+
+    .gem {
+      width: 84%;
+      height: 84%;
+      border-radius: 50%;
+      box-shadow:
+        inset 0 10px 14px rgba(255,255,255,0.38),
+        inset 0 -12px 16px rgba(0,0,0,0.18),
+        0 8px 12px rgba(35,32,28,0.18);
+      position: relative;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+
+    .gem::after {
+      content: "";
+      position: absolute;
+      top: 16%;
+      left: 20%;
+      width: 26%;
+      height: 18%;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.52);
+      transform: rotate(-22deg);
+    }
+
+    .c0 { background: var(--red); }
+    .c1 { background: var(--yellow); }
+    .c2 { background: var(--green); }
+    .c3 { background: var(--blue); }
+    .c4 { background: var(--violet); }
+    .c5 { background: var(--cyan); }
+
+    .lightning .gem::before {
+      content: "";
+      position: absolute;
+      inset: 18% 32% 18% 32%;
+      background: #fff7ab;
+      clip-path: polygon(48% 0, 88% 0, 62% 38%, 100% 38%, 28% 100%, 42% 54%, 0 54%);
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.28));
+      z-index: 1;
+    }
+
+    .rainbow .gem {
+      background: conic-gradient(#e64b5d, #f2b93f, #43b978, #31b9c7, #3a7bd5, #8a62d6, #e64b5d);
+    }
+
+    .rainbow .gem::before {
+      content: "";
+      position: absolute;
+      inset: 22%;
+      border-radius: 50%;
+      border: 4px solid rgba(255,255,255,0.82);
+      box-shadow: 0 0 10px rgba(255,255,255,0.72);
+      z-index: 1;
+    }
+
+    .cell.clearing .gem {
+      animation: clearGem 220ms ease-in forwards;
+    }
+
+    @keyframes clearGem {
+      0% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+      55% {
+        opacity: 1;
+        transform: scale(1.18) rotate(8deg);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.16) rotate(28deg);
+      }
+    }
+
+    .rules {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      background: rgba(255,255,255,0.76);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .rules strong {
+      font-size: 15px;
+    }
+
+    .rules p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .message {
+      min-height: 22px;
+      color: #3f4850;
+      font-weight: 700;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 14px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .stats {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .game {
+        grid-template-columns: 1fr;
+      }
+
+      .rules {
+        order: -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="topbar" aria-label="Панель игры">
+      <h1>Три в ряд</h1>
+      <div class="stats">
+        <div class="score">Очки: <span id="score">0</span></div>
+        <button class="new-game" id="newGame" type="button">Новая игра</button>
+      </div>
+    </section>
+
+    <section class="game">
+      <div class="board-wrap">
+        <div class="board" id="board" aria-label="Игровое поле"></div>
+      </div>
+
+      <aside class="rules" aria-label="Правила">
+        <strong>Базовые принципы</strong>
+        <p>Меняй соседние камни местами. Три одинаковых исчезают и дают очки.</p>
+        <p>Четыре одинаковых создают молнию. Сдвинь ее горизонтально, чтобы очистить строку, или вертикально, чтобы очистить столбец.</p>
+        <p>Пять одинаковых создают радугу. Поменяй ее с камнем, и она уничтожит все камни такого цвета.</p>
+        <div class="message" id="message"></div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const size = 8;
+    const colors = 6;
+    const boardElement = document.querySelector("#board");
+    const scoreElement = document.querySelector("#score");
+    const messageElement = document.querySelector("#message");
+    const newGameButton = document.querySelector("#newGame");
+
+    let board = [];
+    let selected = null;
+    let score = 0;
+    let busy = false;
+    let nextGemId = 1;
+    let clearingKeys = new Set();
+    let dragStart = null;
+    let suppressClick = false;
+
+    function makeGem(color, special = null) {
+      const gem = { id: nextGemId, color, special };
+      nextGemId += 1;
+      return gem;
+    }
+
+    function randomColor() {
+      return Math.floor(Math.random() * colors);
+    }
+
+    function startGame() {
+      score = 0;
+      selected = null;
+      busy = false;
+      nextGemId = 1;
+      clearingKeys.clear();
+      dragStart = null;
+      suppressClick = false;
+      board = Array.from({ length: size }, () => Array(size).fill(null));
+
+      for (let row = 0; row < size; row += 1) {
+        for (let col = 0; col < size; col += 1) {
+          let color = randomColor();
+          while (
+            (col >= 2 && board[row][col - 1].color === color && board[row][col - 2].color === color) ||
+            (row >= 2 && board[row - 1][col].color === color && board[row - 2][col].color === color)
+          ) {
+            color = randomColor();
+          }
+          board[row][col] = makeGem(color);
+        }
+      }
+
+      updateScore();
+      setMessage("Собери первую комбинацию.");
+      render();
+    }
+
+    function render() {
+      boardElement.innerHTML = "";
+
+      for (let row = 0; row < size; row += 1) {
+        for (let col = 0; col < size; col += 1) {
+          const gem = board[row][col];
+          const cell = document.createElement("button");
+          cell.type = "button";
+          cell.className = "cell";
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          cell.setAttribute("aria-label", `Камень ${row + 1}-${col + 1}`);
+
+          if (selected && selected.row === row && selected.col === col) {
+            cell.classList.add("selected");
+          }
+
+          if (clearingKeys.has(key({ row, col }))) {
+            cell.classList.add("clearing");
+          }
+
+          if (gem) {
+            if (gem.special) cell.classList.add(gem.special);
+            const dot = document.createElement("span");
+            dot.className = `gem c${gem.color}`;
+            dot.dataset.gemId = gem.id;
+            cell.append(dot);
+          }
+
+          cell.addEventListener("pointerdown", (event) => beginDrag(event, row, col));
+          cell.addEventListener("click", () => {
+            if (suppressClick) {
+              suppressClick = false;
+              return;
+            }
+            chooseCell(row, col);
+          });
+          boardElement.append(cell);
+        }
+      }
+    }
+
+    function chooseCell(row, col) {
+      if (busy) return;
+
+      if (!selected) {
+        selected = { row, col };
+        render();
+        return;
+      }
+
+      if (selected.row === row && selected.col === col) {
+        selected = null;
+        render();
+        return;
+      }
+
+      const first = selected;
+      const second = { row, col };
+
+      if (!isAdjacent(first, second)) {
+        selected = second;
+        render();
+        return;
+      }
+
+      selected = null;
+      handleMove(first, second);
+    }
+
+    function beginDrag(event, row, col) {
+      if (busy || !board[row][col]) return;
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+
+      dragStart = {
+        row,
+        col,
+        x: event.clientX,
+        y: event.clientY,
+        pointerId: event.pointerId
+      };
+    }
+
+    function trackDrag(event) {
+      if (!dragStart || busy || event.pointerId !== dragStart.pointerId) return;
+
+      const dx = event.clientX - dragStart.x;
+      const dy = event.clientY - dragStart.y;
+      const distance = Math.max(Math.abs(dx), Math.abs(dy));
+      if (distance < 24) return;
+
+      const horizontal = Math.abs(dx) >= Math.abs(dy);
+      const target = {
+        row: dragStart.row + (horizontal ? 0 : Math.sign(dy)),
+        col: dragStart.col + (horizontal ? Math.sign(dx) : 0)
+      };
+      const first = { row: dragStart.row, col: dragStart.col };
+
+      suppressClick = true;
+      setTimeout(() => {
+        suppressClick = false;
+      }, 220);
+      dragStart = null;
+      selected = null;
+
+      if (target.row < 0 || target.row >= size || target.col < 0 || target.col >= size) {
+        render();
+        return;
+      }
+
+      handleMove(first, target);
+    }
+
+    function finishDrag(event) {
+      if (!dragStart || event.pointerId !== dragStart.pointerId) return;
+      dragStart = null;
+      if (suppressClick) {
+        setTimeout(() => {
+          suppressClick = false;
+        }, 160);
+      }
+    }
+
+    async function handleMove(first, second) {
+      busy = true;
+      const movingSpecial = board[first.row][first.col]?.special;
+      const targetSpecial = board[second.row][second.col]?.special;
+
+      const beforeSwap = captureGemRects();
+      swap(first, second);
+      render();
+      await animateBoardChange(beforeSwap, 180);
+
+      if (movingSpecial === "lightning" || targetSpecial === "lightning") {
+        const specialPosition = targetSpecial === "lightning" ? first : second;
+        const horizontal = first.row === second.row;
+        await clearLightning(specialPosition, horizontal);
+        await settleBoard();
+        busy = false;
+        render();
+        return;
+      }
+
+      if (movingSpecial === "rainbow" || targetSpecial === "rainbow") {
+        const rainbowPosition = targetSpecial === "rainbow" ? first : second;
+        const colorSource = targetSpecial === "rainbow" ? board[second.row][second.col] : board[first.row][first.col];
+        await clearColor(rainbowPosition, colorSource?.color);
+        await settleBoard();
+        busy = false;
+        render();
+        return;
+      }
+
+      const matches = findMatches();
+      if (matches.length === 0) {
+        setMessage("Этот ход не дает комбинацию.");
+        const beforeReturn = captureGemRects();
+        swap(first, second);
+        render();
+        await animateBoardChange(beforeReturn, 150);
+        busy = false;
+        return;
+      }
+
+      await resolveMatches(matches, second);
+      await dropAndFill();
+      await cascade();
+      busy = false;
+      render();
+    }
+
+    function isAdjacent(a, b) {
+      return Math.abs(a.row - b.row) + Math.abs(a.col - b.col) === 1;
+    }
+
+    function swap(a, b) {
+      const temp = board[a.row][a.col];
+      board[a.row][a.col] = board[b.row][b.col];
+      board[b.row][b.col] = temp;
+    }
+
+    function findMatches() {
+      const matches = [];
+
+      for (let row = 0; row < size; row += 1) {
+        let start = 0;
+        for (let col = 1; col <= size; col += 1) {
+          const same =
+            col < size &&
+            board[row][col] &&
+            board[row][start] &&
+            board[row][col].color === board[row][start].color &&
+            !board[row][col].special &&
+            !board[row][start].special;
+
+          if (!same) {
+            if (col - start >= 3) {
+              matches.push({
+                cells: range(start, col - 1).map((c) => ({ row, col: c })),
+                direction: "horizontal"
+              });
+            }
+            start = col;
+          }
+        }
+      }
+
+      for (let col = 0; col < size; col += 1) {
+        let start = 0;
+        for (let row = 1; row <= size; row += 1) {
+          const same =
+            row < size &&
+            board[row][col] &&
+            board[start][col] &&
+            board[row][col].color === board[start][col].color &&
+            !board[row][col].special &&
+            !board[start][col].special;
+
+          if (!same) {
+            if (row - start >= 3) {
+              matches.push({
+                cells: range(start, row - 1).map((r) => ({ row: r, col })),
+                direction: "vertical"
+              });
+            }
+            start = row;
+          }
+        }
+      }
+
+      return matches;
+    }
+
+    async function resolveMatches(matches, preferredCell = null) {
+      const remove = new Map();
+      const specials = [];
+
+      for (const match of matches) {
+        const keyCells = match.cells.map(key);
+        for (const cell of match.cells) remove.set(key(cell), cell);
+
+        if (match.cells.length >= 5) {
+          const spot = chooseSpecialSpot(match.cells, preferredCell);
+          specials.push({ spot, color: board[spot.row][spot.col].color, special: "rainbow" });
+          for (const cellKey of keyCells) {
+            if (cellKey === key(spot)) remove.delete(cellKey);
+          }
+        } else if (match.cells.length === 4) {
+          const spot = chooseSpecialSpot(match.cells, preferredCell);
+          specials.push({ spot, color: board[spot.row][spot.col].color, special: "lightning" });
+          for (const cellKey of keyCells) {
+            if (cellKey === key(spot)) remove.delete(cellKey);
+          }
+        }
+      }
+
+      const removed = [...remove.values()];
+      if (removed.length > 0) {
+        clearingKeys = new Set(removed.map(key));
+        render();
+        await wait(220);
+        clearingKeys.clear();
+        addScore(removed.length * 10);
+        for (const cell of removed) board[cell.row][cell.col] = null;
+      }
+
+      for (const item of specials) {
+        board[item.spot.row][item.spot.col] = makeGem(item.color, item.special);
+      }
+
+      const bestSpecial = specials.find((item) => item.special === "rainbow") || specials[0];
+      if (bestSpecial?.special === "rainbow") {
+        setMessage("Радуга готова.");
+      } else if (bestSpecial?.special === "lightning") {
+        setMessage("Молния заряжена.");
+      } else if (removed.length > 0) {
+        setMessage(`+${removed.length * 10} очков.`);
+      }
+
+      render();
+      await wait(80);
+    }
+
+    function chooseSpecialSpot(cells, preferredCell) {
+      if (preferredCell && cells.some((cell) => sameCell(cell, preferredCell))) {
+        return preferredCell;
+      }
+      return cells[Math.floor(cells.length / 2)];
+    }
+
+    async function settleBoard() {
+      await dropAndFill();
+      await cascade();
+    }
+
+    async function cascade() {
+      let matches = findMatches();
+      while (matches.length > 0) {
+        await resolveMatches(matches);
+        await dropAndFill();
+        matches = findMatches();
+      }
+    }
+
+    async function dropAndFill() {
+      const movements = collapseColumns();
+      render();
+      await animateGemMovements(movements, 320);
+    }
+
+    function collapseColumns() {
+      const movements = new Map();
+
+      for (let col = 0; col < size; col += 1) {
+        const nextColumn = Array(size).fill(null);
+        let targetRow = size - 1;
+
+        for (let row = size - 1; row >= 0; row -= 1) {
+          const gem = board[row][col];
+          if (!gem) continue;
+
+          nextColumn[targetRow] = gem;
+          if (targetRow !== row) {
+            movements.set(String(gem.id), {
+              fromRow: row,
+              fromCol: col,
+              toRow: targetRow,
+              toCol: col
+            });
+          }
+          targetRow -= 1;
+        }
+
+        let spawnRow = -1;
+        for (let row = targetRow; row >= 0; row -= 1) {
+          const gem = makeGem(randomColor());
+          nextColumn[row] = gem;
+          movements.set(String(gem.id), {
+            fromRow: spawnRow,
+            fromCol: col,
+            toRow: row,
+            toCol: col
+          });
+          spawnRow -= 1;
+        }
+
+        for (let row = 0; row < size; row += 1) {
+          board[row][col] = nextColumn[row];
+        }
+      }
+
+      return movements;
+    }
+
+    async function clearLightning(position, horizontal) {
+      const cleared = [];
+      if (horizontal) {
+        for (let col = 0; col < size; col += 1) cleared.push({ row: position.row, col });
+        setMessage("Молния очистила строку.");
+      } else {
+        for (let row = 0; row < size; row += 1) cleared.push({ row, col: position.col });
+        setMessage("Молния очистила столбец.");
+      }
+      await clearCells(cleared);
+    }
+
+    async function clearColor(rainbowPosition, color) {
+      const cleared = [rainbowPosition];
+      if (typeof color === "number") {
+        for (let row = 0; row < size; row += 1) {
+          for (let col = 0; col < size; col += 1) {
+            if (board[row][col]?.color === color && !sameCell({ row, col }, rainbowPosition)) {
+              cleared.push({ row, col });
+            }
+          }
+        }
+      }
+      setMessage("Радуга очистила цвет.");
+      await clearCells(cleared);
+    }
+
+    async function clearCells(cells) {
+      const unique = new Map();
+      for (const cell of cells) unique.set(key(cell), cell);
+
+      clearingKeys = new Set([...unique.keys()]);
+      render();
+      await wait(220);
+      clearingKeys.clear();
+
+      for (const cell of unique.values()) {
+        if (board[cell.row][cell.col]) {
+          board[cell.row][cell.col] = null;
+          addScore(10);
+        }
+      }
+
+      render();
+    }
+
+    function captureGemRects() {
+      const rects = new Map();
+      if (!boardElement.querySelectorAll) return rects;
+
+      for (const gem of boardElement.querySelectorAll(".gem[data-gem-id]")) {
+        const box = gem.getBoundingClientRect();
+        rects.set(gem.dataset.gemId, { left: box.left, top: box.top });
+      }
+
+      return rects;
+    }
+
+    async function animateBoardChange(previousRects, duration = 220) {
+      if (!boardElement.querySelectorAll) return;
+
+      const animations = [];
+      for (const gem of boardElement.querySelectorAll(".gem[data-gem-id]")) {
+        if (typeof gem.animate !== "function") continue;
+
+        const box = gem.getBoundingClientRect();
+        const previous = previousRects.get(gem.dataset.gemId);
+
+        if (previous) {
+          const dx = previous.left - box.left;
+          const dy = previous.top - box.top;
+          if (Math.abs(dx) < 1 && Math.abs(dy) < 1) continue;
+
+          animations.push(gem.animate(
+            [
+              { transform: `translate(${dx}px, ${dy}px)`, opacity: 1 },
+              { transform: "translate(0, 0)", opacity: 1 }
+            ],
+            { duration, easing: "cubic-bezier(.2,.72,.15,1)" }
+          ));
+        } else {
+          animations.push(gem.animate(
+            [
+              { transform: "translateY(-70%) scale(.72)", opacity: 0 },
+              { transform: "translateY(0) scale(1)", opacity: 1 }
+            ],
+            { duration: duration + 40, easing: "cubic-bezier(.2,.72,.15,1)" }
+          ));
+        }
+      }
+
+      await Promise.all(animations.map((animation) => animation.finished.catch(() => {})));
+    }
+
+    async function animateGemMovements(movements, baseDuration = 320) {
+      if (!boardElement.querySelectorAll || movements.size === 0) return;
+
+      const metrics = getGridMetrics();
+      if (!metrics) return;
+
+      const animations = [];
+      for (const gem of boardElement.querySelectorAll(".gem[data-gem-id]")) {
+        if (typeof gem.animate !== "function") continue;
+
+        const movement = movements.get(gem.dataset.gemId);
+        if (!movement) continue;
+
+        const dx = (movement.fromCol - movement.toCol) * metrics.pitchX;
+        const dy = (movement.fromRow - movement.toRow) * metrics.pitchY;
+        const distance = Math.abs(movement.fromRow - movement.toRow) + Math.abs(movement.fromCol - movement.toCol);
+        const startsAboveBoard = movement.fromRow < 0;
+        const fallsDown = movement.toRow > movement.fromRow;
+        const keyframes = fallsDown
+          ? [
+              {
+                transform: `translate(${dx}px, ${dy}px) scale(1)`,
+                opacity: startsAboveBoard ? 0 : 1,
+                offset: 0
+              },
+              {
+                transform: "translate(0, 0) scale(1)",
+                opacity: 1,
+                offset: 0.78
+              },
+              {
+                transform: "translate(0, 3px) scale(1.03, .96)",
+                opacity: 1,
+                offset: 0.9
+              },
+              {
+                transform: "translate(0, 0) scale(1)",
+                opacity: 1,
+                offset: 1
+              }
+            ]
+          : [
+              {
+                transform: `translate(${dx}px, ${dy}px)`,
+                opacity: startsAboveBoard ? 0 : 1
+              },
+              {
+                transform: "translate(0, 0)",
+                opacity: 1
+              }
+            ];
+
+        animations.push(gem.animate(
+          keyframes,
+          {
+            duration: baseDuration + distance * 48,
+            easing: fallsDown ? "cubic-bezier(.16,.7,.18,1)" : "cubic-bezier(.18,.74,.18,1)"
+          }
+        ));
+      }
+
+      await Promise.all(animations.map((animation) => animation.finished.catch(() => {})));
+    }
+
+    function getGridMetrics() {
+      const cells = boardElement.querySelectorAll?.(".cell");
+      if (!cells || cells.length < size + 1) return null;
+
+      const first = cells[0].getBoundingClientRect();
+      const second = cells[1].getBoundingClientRect();
+      const below = cells[size].getBoundingClientRect();
+
+      return {
+        pitchX: second.left - first.left,
+        pitchY: below.top - first.top
+      };
+    }
+
+    function addScore(points) {
+      score += points;
+      updateScore();
+    }
+
+    function updateScore() {
+      scoreElement.textContent = String(score);
+    }
+
+    function setMessage(text) {
+      messageElement.textContent = text;
+    }
+
+    function range(from, to) {
+      return Array.from({ length: to - from + 1 }, (_, index) => from + index);
+    }
+
+    function key(cell) {
+      return `${cell.row}:${cell.col}`;
+    }
+
+    function sameCell(a, b) {
+      return a.row === b.row && a.col === b.col;
+    }
+
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    newGameButton.addEventListener("click", startGame);
+    if (document.addEventListener) {
+      document.addEventListener("pointermove", trackDrag);
+      document.addEventListener("pointerup", finishDrag);
+      document.addEventListener("pointercancel", finishDrag);
+    }
+    startGame();
+  </script>
+</body>
+</html>
