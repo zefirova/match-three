@@ -19,7 +19,7 @@
       --green: #43b978;
       --blue: #3a7bd5;
       --violet: #8a62d6;
-      --cyan: #31b9c7;
+      --orange: #ff9629;
     }
 
     * {
@@ -175,12 +175,35 @@
       transform: rotate(-22deg);
     }
 
-    .c0 { background: var(--red); }
-    .c1 { background: var(--yellow); }
-    .c2 { background: var(--green); }
-    .c3 { background: var(--blue); }
-    .c4 { background: var(--violet); }
-    .c5 { background: var(--cyan); }
+    .c0 {
+      background: var(--red) url("./red.png") center / contain no-repeat;
+    }
+
+    .c1 {
+      background: var(--yellow) url("./yellow.png") center / contain no-repeat;
+    }
+
+    .gem.c0::after,
+    .gem.c1::after,
+    .gem.c2::after,
+    .gem.c3::after,
+    .gem.c4::after,
+    .gem.c5::after {
+      display: none;
+    }
+
+    .c2 {
+      background: var(--green) url("./green.webp") center / contain no-repeat;
+    }
+    .c3 {
+      background: var(--blue) url("./blue.png") center / contain no-repeat;
+    }
+    .c4 {
+      background: var(--violet) url("./violet.png") center / contain no-repeat;
+    }
+    .c5 {
+      background: var(--orange) url("./orange.png") center / contain no-repeat;
+    }
 
     .lightning .gem::before {
       content: "";
@@ -336,20 +359,24 @@
       clearingKeys.clear();
       dragStart = null;
       suppressClick = false;
-      board = Array.from({ length: size }, () => Array(size).fill(null));
+      let attempts = 0;
+      do {
+        board = Array.from({ length: size }, () => Array(size).fill(null));
 
-      for (let row = 0; row < size; row += 1) {
-        for (let col = 0; col < size; col += 1) {
-          let color = randomColor();
-          while (
-            (col >= 2 && board[row][col - 1].color === color && board[row][col - 2].color === color) ||
-            (row >= 2 && board[row - 1][col].color === color && board[row - 2][col].color === color)
-          ) {
-            color = randomColor();
+        for (let row = 0; row < size; row += 1) {
+          for (let col = 0; col < size; col += 1) {
+            let color = randomColor();
+            while (
+              (col >= 2 && board[row][col - 1].color === color && board[row][col - 2].color === color) ||
+              (row >= 2 && board[row - 1][col].color === color && board[row - 2][col].color === color)
+            ) {
+              color = randomColor();
+            }
+            board[row][col] = makeGem(color);
           }
-          board[row][col] = makeGem(color);
         }
-      }
+        attempts += 1;
+      } while (!hasPossibleMove() && attempts < 50);
 
       updateScore();
       setMessage("Собери первую комбинацию.");
@@ -523,6 +550,7 @@
       await resolveMatches(matches, second);
       await dropAndFill();
       await cascade();
+      await ensurePlayableBoard();
       busy = false;
       render();
     }
@@ -649,6 +677,7 @@
     async function settleBoard() {
       await dropAndFill();
       await cascade();
+      await ensurePlayableBoard();
     }
 
     async function cascade() {
@@ -658,6 +687,97 @@
         await dropAndFill();
         matches = findMatches();
       }
+    }
+
+    async function ensurePlayableBoard() {
+      let reshuffles = 0;
+
+      while (!hasPossibleMove() && reshuffles < 5) {
+        setMessage("Ходов нет. Перемешиваем поле.");
+        await shuffleBoardUntilPlayable();
+        reshuffles += 1;
+      }
+    }
+
+    function hasPossibleMove() {
+      for (let row = 0; row < size; row += 1) {
+        for (let col = 0; col < size; col += 1) {
+          if (board[row][col]?.special) return true;
+        }
+      }
+
+      for (let row = 0; row < size; row += 1) {
+        for (let col = 0; col < size; col += 1) {
+          const current = { row, col };
+          const right = { row, col: col + 1 };
+          const down = { row: row + 1, col };
+
+          if (col + 1 < size && swapCreatesMatch(current, right)) return true;
+          if (row + 1 < size && swapCreatesMatch(current, down)) return true;
+        }
+      }
+
+      return false;
+    }
+
+    function swapCreatesMatch(first, second) {
+      if (!board[first.row][first.col] || !board[second.row][second.col]) return false;
+
+      swap(first, second);
+      const createsMatch = findMatches().length > 0;
+      swap(first, second);
+
+      return createsMatch;
+    }
+
+    async function shuffleBoardUntilPlayable() {
+      const beforeShuffle = captureGemRects();
+      const gems = board.flat().filter(Boolean);
+      const originalOrder = gems.map((gem) => gem.id).join(":");
+      let shuffled = [...gems];
+      let foundPlayableOrder = false;
+
+      for (let attempt = 0; attempt < 500; attempt += 1) {
+        shuffled = shuffle([...gems]);
+        placeGems(shuffled);
+
+        const changedOrder = shuffled.map((gem) => gem.id).join(":") !== originalOrder;
+        if (changedOrder && findMatches().length === 0 && hasPossibleMove()) {
+          foundPlayableOrder = true;
+          break;
+        }
+      }
+
+      if (!foundPlayableOrder) {
+        placeGems(shuffled);
+      }
+
+      render();
+      await animateBoardChange(beforeShuffle, 360);
+
+      if (findMatches().length === 0 && hasPossibleMove()) {
+        setMessage("Поле перемешано.");
+      }
+    }
+
+    function placeGems(gems) {
+      let index = 0;
+      for (let row = 0; row < size; row += 1) {
+        for (let col = 0; col < size; col += 1) {
+          board[row][col] = gems[index];
+          index += 1;
+        }
+      }
+    }
+
+    function shuffle(items) {
+      for (let index = items.length - 1; index > 0; index -= 1) {
+        const other = Math.floor(Math.random() * (index + 1));
+        const temp = items[index];
+        items[index] = items[other];
+        items[other] = temp;
+      }
+      return items;
     }
 
     async function dropAndFill() {
