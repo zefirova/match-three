@@ -6,14 +6,18 @@
   <title>Три в ряд</title>
   <style>
     :root {
-      color-scheme: light;
-      --bg: #f4f0e8;
-      --ink: #1f2528;
-      --muted: #657078;
-      --panel: #ffffff;
-      --line: #d9d2c5;
-      --cell: #e8dfd2;
-      --shadow: 0 18px 45px rgba(43, 35, 24, 0.14);
+      color-scheme: dark;
+      --bg: #090b0e;
+      --ink: #f3f5f7;
+      --muted: #b3bbc4;
+      --panel: #171a1f;
+      --panel-soft: rgba(23, 26, 31, 0.82);
+      --line: #303640;
+      --cell: #20252c;
+      --cell-hover: #28303a;
+      --board: #12161b;
+      --board-line: #323944;
+      --shadow: 0 20px 48px rgba(0, 0, 0, 0.42);
       --red: #e64b5d;
       --yellow: #f2b93f;
       --green: #43b978;
@@ -32,7 +36,8 @@
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--ink);
       background:
-        linear-gradient(135deg, rgba(255,255,255,0.72), rgba(255,255,255,0) 42%),
+        radial-gradient(circle at 24% 16%, rgba(70, 78, 92, 0.26), transparent 32%),
+        linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 42%),
         var(--bg);
       display: grid;
       place-items: center;
@@ -51,7 +56,7 @@
       justify-content: space-between;
       gap: 14px;
       padding: 14px 16px;
-      background: rgba(255,255,255,0.76);
+      background: var(--panel-soft);
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
@@ -77,6 +82,7 @@
       padding: 9px 12px;
       border: 1px solid var(--line);
       background: var(--panel);
+      color: var(--ink);
       font-weight: 800;
       text-align: center;
     }
@@ -87,15 +93,15 @@
 
     .new-game {
       border: 0;
-      background: #20262b;
-      color: white;
+      background: #f3f5f7;
+      color: #101317;
       padding: 10px 13px;
       cursor: pointer;
       font-weight: 750;
     }
 
     .new-game:hover {
-      background: #313941;
+      background: #dce2e8;
     }
 
     .game {
@@ -109,11 +115,18 @@
       width: 100%;
       aspect-ratio: 1;
       padding: clamp(8px, 1.8vw, 14px);
-      background: #cfc3b3;
-      border: 1px solid #b9ad9d;
+      background: var(--board);
+      border: 1px solid var(--board-line);
       box-shadow: var(--shadow);
       overflow: hidden;
       user-select: none;
+      position: relative;
+    }
+
+    .board-wrap.rainbow-pulse {
+      background:
+        conic-gradient(from 0deg, #e64b5d, #f2b93f, #43b978, #31b9c7, #3a7bd5, #8a62d6, #e64b5d);
+      animation: rainbowField 760ms linear infinite;
     }
 
     .board {
@@ -123,6 +136,45 @@
       grid-template-columns: repeat(8, minmax(0, 1fr));
       grid-template-rows: repeat(8, minmax(0, 1fr));
       gap: clamp(4px, 1vw, 8px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .effect-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+      overflow: hidden;
+    }
+
+    .lightning-flash {
+      position: absolute;
+      border-radius: 999px;
+      background:
+        linear-gradient(90deg, transparent, rgba(255,255,255,0.25), #fffbd2 35%, #ffd748 50%, #fffbd2 65%, rgba(255,255,255,0.25), transparent);
+      box-shadow:
+        0 0 10px rgba(255,221,64,0.95),
+        0 0 22px rgba(255,131,36,0.65),
+        0 0 34px rgba(255,255,255,0.58);
+      opacity: 0;
+      transform-origin: center;
+      animation: lightningSweep 430ms ease-out forwards;
+    }
+
+    .lightning-flash.vertical {
+      background:
+        linear-gradient(180deg, transparent, rgba(255,255,255,0.25), #fffbd2 35%, #ffd748 50%, #fffbd2 65%, rgba(255,255,255,0.25), transparent);
+    }
+
+    .lightning-flash::before {
+      content: "";
+      position: absolute;
+      inset: -45%;
+      background:
+        repeating-linear-gradient(115deg, transparent 0 12px, rgba(255,255,255,0.86) 13px 15px, transparent 16px 29px);
+      opacity: 0.7;
+      animation: lightningJitter 130ms steps(2, end) infinite;
     }
 
     .cell {
@@ -142,12 +194,15 @@
 
     .cell:hover {
       transform: translateY(-1px);
-      box-shadow: inset 0 0 0 2px rgba(31,37,40,0.14);
+      background: var(--cell-hover);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.14);
     }
 
     .cell.selected {
-      background: #fff7df;
-      box-shadow: inset 0 0 0 3px #20262b;
+      background: #2d3540;
+      box-shadow:
+        inset 0 0 0 3px #f3f5f7,
+        0 0 18px rgba(255,255,255,0.14);
     }
 
     .gem {
@@ -155,9 +210,9 @@
       height: 84%;
       border-radius: 50%;
       box-shadow:
-        inset 0 10px 14px rgba(255,255,255,0.38),
-        inset 0 -12px 16px rgba(0,0,0,0.18),
-        0 8px 12px rgba(35,32,28,0.18);
+        inset 0 10px 14px rgba(255,255,255,0.28),
+        inset 0 -12px 16px rgba(0,0,0,0.32),
+        0 8px 14px rgba(0,0,0,0.36);
       position: relative;
       pointer-events: none;
       will-change: transform, opacity;
@@ -205,28 +260,62 @@
       background: var(--orange) url("./orange.png") center / contain no-repeat;
     }
 
-    .lightning .gem::before {
-      content: "";
-      position: absolute;
-      inset: 18% 32% 18% 32%;
-      background: #fff7ab;
-      clip-path: polygon(48% 0, 88% 0, 62% 38%, 100% 38%, 28% 100%, 42% 54%, 0 54%);
-      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.28));
-      z-index: 1;
+    .lightning .gem,
+    .lightning-horizontal .gem,
+    .lightning-vertical .gem,
+    .bomb .gem,
+    .rainbow .gem {
+      background:
+        radial-gradient(circle at 30% 22%, rgba(255,255,255,0.78) 0 12%, transparent 13%),
+        linear-gradient(145deg, #404852, #1e232a);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      clip-path: circle(50% at 50% 50%);
+      font-size: clamp(24px, 5vw, 44px);
     }
 
-    .rainbow .gem {
-      background: conic-gradient(#e64b5d, #f2b93f, #43b978, #31b9c7, #3a7bd5, #8a62d6, #e64b5d);
+    .lightning .gem::before,
+    .lightning-horizontal .gem::before,
+    .lightning-vertical .gem::before {
+      content: "";
+      position: absolute;
+      inset: 17% 32% 18% 32%;
+      background: linear-gradient(180deg, #fff48a, #ff8a2a);
+      clip-path: polygon(48% 0, 88% 0, 62% 38%, 100% 38%, 30% 100%, 42% 56%, 0 56%);
+      filter: drop-shadow(0 2px 1px rgba(95, 55, 0, 0.26));
+      z-index: 2;
+    }
+
+    .lightning-horizontal .gem::before {
+      transform: rotate(90deg);
+    }
+
+    .bomb .gem::before {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      content: "💣";
+      font-size: 62%;
+      line-height: 1;
+      z-index: 2;
     }
 
     .rainbow .gem::before {
-      content: "";
       position: absolute;
-      inset: 22%;
-      border-radius: 50%;
-      border: 4px solid rgba(255,255,255,0.82);
-      box-shadow: 0 0 10px rgba(255,255,255,0.72);
-      z-index: 1;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      content: "🌈";
+      font-size: 58%;
+      line-height: 1;
+      z-index: 2;
+    }
+
+    .bomb .gem::after,
+    .rainbow .gem::after {
+      display: none;
     }
 
     .cell.clearing .gem {
@@ -248,11 +337,65 @@
       }
     }
 
+    @keyframes lightningSweep {
+      0% {
+        opacity: 0;
+        transform: scaleX(0.04);
+      }
+      18% {
+        opacity: 1;
+      }
+      72% {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scaleX(1);
+      }
+    }
+
+    @keyframes lightningSweepVertical {
+      0% {
+        opacity: 0;
+        transform: scaleY(0.04);
+      }
+      18% {
+        opacity: 1;
+      }
+      72% {
+        opacity: 1;
+        transform: scaleY(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scaleY(1);
+      }
+    }
+
+    @keyframes lightningJitter {
+      0% {
+        transform: translate(-3px, 2px);
+      }
+      100% {
+        transform: translate(4px, -2px);
+      }
+    }
+
+    @keyframes rainbowField {
+      0% {
+        filter: hue-rotate(0deg) saturate(1.2);
+      }
+      100% {
+        filter: hue-rotate(360deg) saturate(1.45);
+      }
+    }
+
     .rules {
       display: grid;
       gap: 10px;
       padding: 14px;
-      background: rgba(255,255,255,0.76);
+      background: var(--panel-soft);
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
       font-size: 14px;
@@ -270,7 +413,7 @@
 
     .message {
       min-height: 22px;
-      color: #3f4850;
+      color: #ffffff;
       font-weight: 700;
     }
 
@@ -305,20 +448,25 @@
       <h1>Три в ряд</h1>
       <div class="stats">
         <div class="score">Очки: <span id="score">0</span></div>
+        <div class="score">Виды: <span id="colorCount">4</span>/6</div>
         <button class="new-game" id="newGame" type="button">Новая игра</button>
       </div>
     </section>
 
     <section class="game">
-      <div class="board-wrap">
+      <div class="board-wrap" id="boardWrap">
+        <div class="effect-layer" id="effectLayer"></div>
         <div class="board" id="board" aria-label="Игровое поле"></div>
       </div>
 
       <aside class="rules" aria-label="Правила">
         <strong>Базовые принципы</strong>
         <p>Меняй соседние камни местами. Три одинаковых исчезают и дают очки.</p>
-        <p>Четыре одинаковых создают молнию. Сдвинь ее горизонтально, чтобы очистить строку, или вертикально, чтобы очистить столбец.</p>
-        <p>Пять одинаковых создают радугу. Поменяй ее с камнем, и она уничтожит все камни такого цвета.</p>
+        <p>Четыре одинаковых создают отдельную горизонтальную или вертикальную молнию. Сдвинь ее с соседним камнем, чтобы очистить строку или столбец.</p>
+        <p>Пять одинаковых в линию создают радугу. Т/Г-фигуры создают бомбу: сдвинь ее с соседним камнем, чтобы очистить область 3x3.</p>
+        <p>Спецкамни можно объединять: две молнии чистят крест, бомба+молния чистит 5x5, две радуги чистят все поле.</p>
+        <p>Радуга+молния превращает случайные камни в молнии, радуга+бомба превращает случайные камни в бомбы, затем все они срабатывают.</p>
+        <p>Сначала падают только 4 вида камней. После 500 очков сверху начинает падать 5-й, после 1000 очков — 6-й.</p>
         <div class="message" id="message"></div>
       </aside>
     </section>
@@ -327,8 +475,11 @@
   <script>
     const size = 8;
     const colors = 6;
+    const boardWrapElement = document.querySelector("#boardWrap");
+    const effectLayerElement = document.querySelector("#effectLayer");
     const boardElement = document.querySelector("#board");
     const scoreElement = document.querySelector("#score");
+    const colorCountElement = document.querySelector("#colorCount");
     const messageElement = document.querySelector("#message");
     const newGameButton = document.querySelector("#newGame");
 
@@ -348,7 +499,13 @@
     }
 
     function randomColor() {
-      return Math.floor(Math.random() * colors);
+      return Math.floor(Math.random() * unlockedColorCount());
+    }
+
+    function unlockedColorCount() {
+      if (score >= 1000) return 6;
+      if (score >= 500) return 5;
+      return 4;
     }
 
     function startGame() {
@@ -407,7 +564,7 @@
           if (gem) {
             if (gem.special) cell.classList.add(gem.special);
             const dot = document.createElement("span");
-            dot.className = `gem c${gem.color}`;
+            dot.className = typeof gem.color === "number" ? `gem c${gem.color}` : "gem";
             dot.dataset.gemId = gem.id;
             cell.append(dot);
           }
@@ -508,19 +665,21 @@
 
     async function handleMove(first, second) {
       busy = true;
-      const movingSpecial = board[first.row][first.col]?.special;
-      const targetSpecial = board[second.row][second.col]?.special;
+      const movingGem = board[first.row][first.col];
+      const targetGem = board[second.row][second.col];
+      const movingSpecial = movingGem?.special;
+      const targetSpecial = targetGem?.special;
 
       const beforeSwap = captureGemRects();
       swap(first, second);
       render();
       await animateBoardChange(beforeSwap, 180);
 
-      if (movingSpecial === "lightning" || targetSpecial === "lightning") {
-        const specialPosition = targetSpecial === "lightning" ? first : second;
-        const horizontal = first.row === second.row;
-        await clearLightning(specialPosition, horizontal);
+      const specialCombo = getSpecialCombo(first, second, movingGem, targetGem);
+      if (specialCombo) {
+        await runSpecialCombo(specialCombo);
         await settleBoard();
+        setMessage(specialComboMessage(specialCombo.type));
         busy = false;
         render();
         return;
@@ -537,6 +696,7 @@
       }
 
       const matches = findMatches();
+
       if (matches.length === 0) {
         setMessage("Этот ход не дает комбинацию.");
         const beforeReturn = captureGemRects();
@@ -576,8 +736,8 @@
             board[row][col] &&
             board[row][start] &&
             board[row][col].color === board[row][start].color &&
-            !board[row][col].special &&
-            !board[row][start].special;
+            canJoinMatch(board[row][col]) &&
+            canJoinMatch(board[row][start]);
 
           if (!same) {
             if (col - start >= 3) {
@@ -599,8 +759,8 @@
             board[row][col] &&
             board[start][col] &&
             board[row][col].color === board[start][col].color &&
-            !board[row][col].special &&
-            !board[start][col].special;
+            canJoinMatch(board[row][col]) &&
+            canJoinMatch(board[start][col]);
 
           if (!same) {
             if (row - start >= 3) {
@@ -617,23 +777,348 @@
       return matches;
     }
 
+    function canJoinMatch(gem) {
+      return gem && !gem.special && typeof gem.color === "number";
+    }
+
+    function isLightningSpecial(special) {
+      return special === "lightning" || special === "lightning-horizontal" || special === "lightning-vertical";
+    }
+
+    function lightningDirection(special) {
+      if (special === "lightning-vertical") return "vertical";
+      return "horizontal";
+    }
+
+    function getSpecialCombo(first, second, movingGem, targetGem) {
+      const movedPosition = second;
+      const targetPosition = first;
+
+      if (movingGem?.special === "rainbow" && targetGem?.special === "rainbow") {
+        return {
+          type: "rainbow-rainbow",
+          positions: [movedPosition, targetPosition]
+        };
+      }
+
+      if (movingGem?.special === "rainbow" && isLightningSpecial(targetGem?.special)) {
+        return {
+          type: "rainbow-lightning",
+          rainbowPosition: movedPosition,
+          lightningPosition: targetPosition,
+          lightningGem: targetGem
+        };
+      }
+
+      if (targetGem?.special === "rainbow" && isLightningSpecial(movingGem?.special)) {
+        return {
+          type: "rainbow-lightning",
+          rainbowPosition: targetPosition,
+          lightningPosition: movedPosition,
+          lightningGem: movingGem
+        };
+      }
+
+      if (movingGem?.special === "rainbow" && targetGem?.special === "bomb") {
+        return {
+          type: "rainbow-bomb",
+          rainbowPosition: movedPosition,
+          bombPosition: targetPosition
+        };
+      }
+
+      if (targetGem?.special === "rainbow" && movingGem?.special === "bomb") {
+        return {
+          type: "rainbow-bomb",
+          rainbowPosition: targetPosition,
+          bombPosition: movedPosition
+        };
+      }
+
+      if (isLightningSpecial(movingGem?.special) && isLightningSpecial(targetGem?.special)) {
+        return {
+          type: "lightning-lightning",
+          center: movedPosition,
+          extraPosition: targetPosition
+        };
+      }
+
+      if (isLightningSpecial(movingGem?.special) && targetGem?.special === "bomb") {
+        return {
+          type: "lightning-bomb",
+          center: movedPosition,
+          extraPosition: targetPosition
+        };
+      }
+
+      if (movingGem?.special === "bomb" && isLightningSpecial(targetGem?.special)) {
+        return {
+          type: "lightning-bomb",
+          center: targetPosition,
+          extraPosition: movedPosition
+        };
+      }
+
+      if (isLightningSpecial(movingGem?.special)) {
+        return {
+          type: "lightning",
+          position: movedPosition,
+          direction: lightningDirection(movingGem.special)
+        };
+      }
+
+      if (isLightningSpecial(targetGem?.special)) {
+        return {
+          type: "lightning",
+          position: targetPosition,
+          direction: lightningDirection(targetGem.special)
+        };
+      }
+
+      if (movingGem?.special === "bomb") {
+        return {
+          type: "bomb",
+          position: movedPosition
+        };
+      }
+
+      if (targetGem?.special === "bomb") {
+        return {
+          type: "bomb",
+          position: targetPosition
+        };
+      }
+
+      return null;
+    }
+
+    async function runSpecialCombo(combo) {
+      if (combo.type === "rainbow-rainbow") {
+        await clearWholeBoard(combo.positions);
+        return;
+      }
+
+      if (combo.type === "rainbow-lightning") {
+        await clearRainbowLightning(combo.rainbowPosition, combo.lightningPosition, combo.lightningGem);
+        return;
+      }
+
+      if (combo.type === "rainbow-bomb") {
+        await clearRainbowBomb(combo.rainbowPosition, combo.bombPosition);
+        return;
+      }
+
+      if (combo.type === "lightning-lightning") {
+        await clearLightningCross(combo.center, combo.extraPosition);
+        return;
+      }
+
+      if (combo.type === "lightning-bomb") {
+        await clearBigBomb(combo.center, combo.extraPosition);
+        return;
+      }
+
+      if (combo.type === "lightning") {
+        await clearLightning(combo.position, combo.direction);
+        return;
+      }
+
+      if (combo.type === "bomb") {
+        await clearBomb(combo.position);
+      }
+    }
+
+    function specialComboMessage(type) {
+      const messages = {
+        "rainbow-rainbow": "Две радуги очистили все поле.",
+        "rainbow-lightning": "Радуга запустила молнии.",
+        "rainbow-bomb": "Радуга запустила бомбы.",
+        "lightning-lightning": "Две молнии очистили крест.",
+        "lightning-bomb": "Бомба и молния очистили область 5x5.",
+        lightning: "Молния сработала.",
+        bomb: "Бомба сработала."
+      };
+      return messages[type] || "Спецкамень сработал.";
+    }
+
+    function getMatchedSpecialActivations(matches) {
+      const matchedCells = new Map();
+      const activations = new Map();
+
+      for (const match of matches) {
+        for (const cell of match.cells) {
+          const cellKey = key(cell);
+          const gem = board[cell.row][cell.col];
+          matchedCells.set(cellKey, cell);
+
+          if (isLightningSpecial(gem?.special)) {
+            activations.set(cellKey, {
+              type: "lightning",
+              position: cell,
+              direction: lightningDirection(gem.special)
+            });
+          } else if (gem?.special === "bomb") {
+            activations.set(cellKey, {
+              type: "bomb",
+              position: cell
+            });
+          }
+        }
+      }
+
+      return {
+        activations: [...activations.values()],
+        extraCells: [...matchedCells.values()]
+      };
+    }
+
+    async function clearMatchedSpecials(result) {
+      const cleared = [...result.extraCells];
+      let lightningCount = 0;
+      let bombCount = 0;
+
+      for (const activation of result.activations) {
+        if (activation.type === "lightning") {
+          lightningCount += 1;
+          cleared.push(...lightningCells(activation.position, activation.direction));
+        } else if (activation.type === "bomb") {
+          bombCount += 1;
+          cleared.push(...bombCells(activation.position));
+        }
+      }
+
+      if (bombCount > 0 && lightningCount > 0) {
+        setMessage("Бомба и молния сработали.");
+      } else if (bombCount > 0) {
+        setMessage("Бомба очистила область.");
+      } else {
+        setMessage("Молния сработала.");
+      }
+
+      await clearCells(cleared);
+    }
+
+    function getLightningActivation(first, second, movingGem, targetGem, matches) {
+      const candidates = [];
+
+      if (isLightningSpecial(movingGem?.special) && targetGem?.color === movingGem.color) {
+        candidates.push({ position: second, direction: lightningDirection(movingGem.special) });
+      }
+
+      if (isLightningSpecial(targetGem?.special) && movingGem?.color === targetGem.color) {
+        candidates.push({ position: first, direction: lightningDirection(targetGem.special) });
+      }
+
+      for (const candidate of candidates) {
+        const match = matches.find((item) => item.cells.some((cell) => sameCell(cell, candidate.position)));
+        if (match) return { ...candidate, extraCells: match.cells };
+      }
+
+      return null;
+    }
+
+    function getBombActivation(first, second, movingGem, targetGem, matches) {
+      const candidates = [];
+
+      if (movingGem?.special === "bomb" && targetGem?.color === movingGem.color) {
+        candidates.push({ position: second });
+      }
+
+      if (targetGem?.special === "bomb" && movingGem?.color === targetGem.color) {
+        candidates.push({ position: first });
+      }
+
+      for (const candidate of candidates) {
+        const match = matches.find((item) => item.cells.some((cell) => sameCell(cell, candidate.position)));
+        if (match) return { ...candidate, extraCells: match.cells };
+      }
+
+      return null;
+    }
+
+    function groupMatches(matches) {
+      const groups = [];
+
+      for (const match of matches) {
+        const firstCell = match.cells[0];
+        const color = board[firstCell.row][firstCell.col]?.color;
+        const matchingGroups = groups.filter((group) =>
+          group.color === color && match.cells.some((cell) => group.cellKeys.has(key(cell)))
+        );
+
+        if (matchingGroups.length === 0) {
+          groups.push(makeMatchGroup(match, color));
+          continue;
+        }
+
+        const primary = matchingGroups[0];
+        addMatchToGroup(primary, match);
+
+        for (let index = 1; index < matchingGroups.length; index += 1) {
+          const group = matchingGroups[index];
+          for (const cell of group.cells.values()) primary.cells.set(key(cell), cell);
+          for (const cellKey of group.cellKeys) primary.cellKeys.add(cellKey);
+          for (const direction of group.directions) primary.directions.add(direction);
+          primary.matches.push(...group.matches);
+          groups.splice(groups.indexOf(group), 1);
+        }
+      }
+
+      return groups.map((group) => ({
+        cells: [...group.cells.values()],
+        direction: group.directions.size > 1 ? "cross" : [...group.directions][0],
+        directions: group.directions,
+        matches: group.matches,
+        color: group.color
+      }));
+    }
+
+    function makeMatchGroup(match, color) {
+      const group = {
+        cells: new Map(),
+        cellKeys: new Set(),
+        directions: new Set(),
+        matches: []
+      };
+      group.color = color;
+      addMatchToGroup(group, match);
+      return group;
+    }
+
+    function addMatchToGroup(group, match) {
+      group.matches.push(match);
+      group.directions.add(match.direction);
+      for (const cell of match.cells) {
+        group.cells.set(key(cell), cell);
+        group.cellKeys.add(key(cell));
+      }
+    }
+
     async function resolveMatches(matches, preferredCell = null) {
       const remove = new Map();
       const specials = [];
+      const matchGroups = groupMatches(matches);
 
-      for (const match of matches) {
+      for (const match of matchGroups) {
         const keyCells = match.cells.map(key);
         for (const cell of match.cells) remove.set(key(cell), cell);
 
-        if (match.cells.length >= 5) {
-          const spot = chooseSpecialSpot(match.cells, preferredCell);
-          specials.push({ spot, color: board[spot.row][spot.col].color, special: "rainbow" });
+        if (isShapedMatch(match)) {
+          const spot = chooseSpecialSpot(match.cells, preferredCell, match);
+          specials.push({ spot, color: null, special: "bomb" });
+          for (const cellKey of keyCells) {
+            if (cellKey === key(spot)) remove.delete(cellKey);
+          }
+        } else if (match.cells.length >= 5) {
+          const spot = chooseSpecialSpot(match.cells, preferredCell, match);
+          specials.push({ spot, color: null, special: "rainbow" });
           for (const cellKey of keyCells) {
             if (cellKey === key(spot)) remove.delete(cellKey);
           }
         } else if (match.cells.length === 4) {
-          const spot = chooseSpecialSpot(match.cells, preferredCell);
-          specials.push({ spot, color: board[spot.row][spot.col].color, special: "lightning" });
+          const spot = chooseSpecialSpot(match.cells, preferredCell, match);
+          const special = match.direction === "vertical" ? "lightning-vertical" : "lightning-horizontal";
+          specials.push({ spot, color: null, special });
           for (const cellKey of keyCells) {
             if (cellKey === key(spot)) remove.delete(cellKey);
           }
@@ -657,7 +1142,9 @@
       const bestSpecial = specials.find((item) => item.special === "rainbow") || specials[0];
       if (bestSpecial?.special === "rainbow") {
         setMessage("Радуга готова.");
-      } else if (bestSpecial?.special === "lightning") {
+      } else if (bestSpecial?.special === "bomb") {
+        setMessage("Бомба готова.");
+      } else if (isLightningSpecial(bestSpecial?.special)) {
         setMessage("Молния заряжена.");
       } else if (removed.length > 0) {
         setMessage(`+${removed.length * 10} очков.`);
@@ -667,11 +1154,34 @@
       await wait(80);
     }
 
-    function chooseSpecialSpot(cells, preferredCell) {
+    function isShapedMatch(match) {
+      return match.directions?.size > 1 && match.cells.length >= 5;
+    }
+
+    function chooseSpecialSpot(cells, preferredCell, match = null) {
       if (preferredCell && cells.some((cell) => sameCell(cell, preferredCell))) {
         return preferredCell;
       }
+      const crossingCell = match ? findCrossingCell(match) : null;
+      if (crossingCell) {
+        return crossingCell;
+      }
       return cells[Math.floor(cells.length / 2)];
+    }
+
+    function findCrossingCell(match) {
+      if (!match.matches || match.matches.length < 2) return null;
+
+      const counts = new Map();
+      for (const line of match.matches) {
+        for (const cell of line.cells) {
+          const cellKey = key(cell);
+          counts.set(cellKey, (counts.get(cellKey) || 0) + 1);
+        }
+      }
+
+      const crossingKey = [...counts.entries()].find((entry) => entry[1] > 1)?.[0];
+      return crossingKey ? match.cells.find((cell) => key(cell) === crossingKey) : null;
     }
 
     async function settleBoard() {
@@ -702,7 +1212,7 @@
     function hasPossibleMove() {
       for (let row = 0; row < size; row += 1) {
         for (let col = 0; col < size; col += 1) {
-          if (board[row][col]?.special) return true;
+          if (board[row][col]?.special === "rainbow") return true;
         }
       }
 
@@ -712,12 +1222,18 @@
           const right = { row, col: col + 1 };
           const down = { row: row + 1, col };
 
+          if (col + 1 < size && wouldTriggerSpecialCombo(current, right)) return true;
+          if (row + 1 < size && wouldTriggerSpecialCombo(current, down)) return true;
           if (col + 1 < size && swapCreatesMatch(current, right)) return true;
           if (row + 1 < size && swapCreatesMatch(current, down)) return true;
         }
       }
 
       return false;
+    }
+
+    function wouldTriggerSpecialCombo(first, second) {
+      return Boolean(getSpecialCombo(first, second, board[first.row][first.col], board[second.row][second.col]));
     }
 
     function swapCreatesMatch(first, second) {
@@ -830,16 +1346,170 @@
       return movements;
     }
 
-    async function clearLightning(position, horizontal) {
-      const cleared = [];
-      if (horizontal) {
-        for (let col = 0; col < size; col += 1) cleared.push({ row: position.row, col });
+    async function clearLightning(position, direction, extraCells = []) {
+      const cleared = [...extraCells, ...lightningCells(position, direction)];
+      if (direction === true || direction === "horizontal") {
         setMessage("Молния очистила строку.");
       } else {
-        for (let row = 0; row < size; row += 1) cleared.push({ row, col: position.col });
         setMessage("Молния очистила столбец.");
       }
+      await playLightningEffects([{ position, direction }]);
       await clearCells(cleared);
+    }
+
+    function lightningCells(position, direction) {
+      const cells = [];
+      const horizontal = direction === true || direction === "horizontal";
+      if (horizontal) {
+        for (let col = 0; col < size; col += 1) cells.push({ row: position.row, col });
+      } else {
+        for (let row = 0; row < size; row += 1) cells.push({ row, col: position.col });
+      }
+      return cells;
+    }
+
+    async function clearLightningCross(center, extraPosition = null) {
+      const cleared = [];
+      for (let col = 0; col < size; col += 1) cleared.push({ row: center.row, col });
+      for (let row = 0; row < size; row += 1) cleared.push({ row, col: center.col });
+      if (extraPosition) cleared.push(extraPosition);
+      setMessage("Две молнии очистили строку и столбец.");
+      await playLightningEffects([
+        { position: center, direction: "horizontal" },
+        { position: center, direction: "vertical" }
+      ]);
+      await clearCells(cleared);
+    }
+
+    async function clearRainbowLightning(rainbowPosition, lightningPosition, lightningGem) {
+      startRainbowField();
+      const transformed = await transformRandomGems(
+        10,
+        (index) => index % 2 === 0 ? "lightning-horizontal" : "lightning-vertical",
+        [rainbowPosition, lightningPosition],
+        "Радуга заряжает молнии."
+      );
+      const activeLightnings = [lightningPosition, ...transformed];
+      const cleared = [rainbowPosition, lightningPosition];
+
+      for (const position of activeLightnings) {
+        const special = board[position.row][position.col]?.special || lightningGem.special;
+        cleared.push(...lightningCells(position, lightningDirection(special)));
+      }
+
+      setMessage("Молнии сработали одновременно.");
+      await playLightningEffects(activeLightnings.map((position) => ({
+        position,
+        direction: lightningDirection(board[position.row][position.col]?.special || lightningGem.special)
+      })));
+      stopRainbowField();
+      await clearCells(cleared);
+    }
+
+    async function clearRainbowBomb(rainbowPosition, bombPosition) {
+      startRainbowField();
+      const transformed = await transformRandomGems(
+        8,
+        () => "bomb",
+        [rainbowPosition, bombPosition],
+        "Радуга расставляет бомбы."
+      );
+      const activeBombs = [bombPosition, ...transformed];
+      const cleared = [rainbowPosition, bombPosition];
+
+      for (const position of activeBombs) {
+        cleared.push(...bombCells(position));
+      }
+
+      setMessage("Бомбы сработали одновременно.");
+      await clearCellsWithBombWaves(
+        cleared,
+        activeBombs.map((position) => ({ center: position, radius: 1 }))
+      );
+      stopRainbowField();
+    }
+
+    async function clearWholeBoard(extraCells = []) {
+      startRainbowField();
+      setMessage("Две радуги очистили все поле.");
+      await wait(620);
+      stopRainbowField();
+      await clearCells([...extraCells, ...allBoardCells()]);
+    }
+
+    async function clearBigBomb(center, extraPosition = null) {
+      const cleared = [...squareCells(center, 2)];
+      if (extraPosition) cleared.push(extraPosition);
+      setMessage("Бомба и молния очистили область 5x5.");
+      await clearCellsWithBombWaves(cleared, [{ center, radius: 2 }]);
+    }
+
+    async function clearBomb(position, extraCells = []) {
+      const cleared = [...extraCells, ...bombCells(position)];
+      setMessage("Бомба очистила область.");
+      await clearCellsWithBombWaves(cleared, [{ center: position, radius: 1 }]);
+    }
+
+    function bombCells(position) {
+      const cells = [];
+      for (let row = position.row - 1; row <= position.row + 1; row += 1) {
+        for (let col = position.col - 1; col <= position.col + 1; col += 1) {
+          if (row >= 0 && row < size && col >= 0 && col < size) {
+            cells.push({ row, col });
+          }
+        }
+      }
+      return cells;
+    }
+
+    function squareCells(center, radius) {
+      const cells = [];
+      for (let row = center.row - radius; row <= center.row + radius; row += 1) {
+        for (let col = center.col - radius; col <= center.col + radius; col += 1) {
+          if (row >= 0 && row < size && col >= 0 && col < size) {
+            cells.push({ row, col });
+          }
+        }
+      }
+      return cells;
+    }
+
+    function allBoardCells() {
+      const cells = [];
+      for (let row = 0; row < size; row += 1) {
+        for (let col = 0; col < size; col += 1) {
+          cells.push({ row, col });
+        }
+      }
+      return cells;
+    }
+
+    async function transformRandomGems(count, specialFactory, excludedCells, message) {
+      const excluded = new Set(excludedCells.map(key));
+      const candidates = [];
+
+      for (let row = 0; row < size; row += 1) {
+        for (let col = 0; col < size; col += 1) {
+          const cell = { row, col };
+          const gem = board[row][col];
+          if (!excluded.has(key(cell)) && gem && !gem.special && typeof gem.color === "number") {
+            candidates.push(cell);
+          }
+        }
+      }
+
+      const selectedCells = shuffle(candidates).slice(0, Math.min(count, candidates.length));
+      setMessage(message);
+
+      for (let index = 0; index < selectedCells.length; index += 1) {
+        const cell = selectedCells[index];
+        board[cell.row][cell.col] = makeGem(null, specialFactory(index));
+        render();
+        await wait(90);
+      }
+
+      await wait(120);
+      return selectedCells;
     }
 
     async function clearColor(rainbowPosition, color) {
@@ -854,26 +1524,181 @@
         }
       }
       setMessage("Радуга очистила цвет.");
+      startRainbowField();
+      await wait(520);
+      stopRainbowField();
       await clearCells(cleared);
     }
 
+    async function playLightningEffects(lines) {
+      if (!effectLayerElement || !boardElement.querySelectorAll || typeof document.createElement !== "function") {
+        await wait(430);
+        return;
+      }
+
+      const metrics = getBoardEffectMetrics();
+      if (!metrics) {
+        await wait(430);
+        return;
+      }
+
+      const animations = [];
+      for (const line of lines) {
+        const direction = line.direction === true ? "horizontal" : line.direction;
+        const flash = document.createElement("div");
+        flash.className = `lightning-flash ${direction === "vertical" ? "vertical" : "horizontal"}`;
+
+        if (direction === "vertical") {
+          const x = metrics.left + line.position.col * metrics.pitchX + metrics.cellWidth / 2 - 6;
+          flash.style.left = `${x}px`;
+          flash.style.top = `${metrics.top}px`;
+          flash.style.width = "12px";
+          flash.style.height = `${metrics.boardHeight}px`;
+          flash.style.transform = "scaleY(0.04)";
+          flash.style.animationName = "lightningSweepVertical";
+        } else {
+          const y = metrics.top + line.position.row * metrics.pitchY + metrics.cellHeight / 2 - 6;
+          flash.style.left = `${metrics.left}px`;
+          flash.style.top = `${y}px`;
+          flash.style.width = `${metrics.boardWidth}px`;
+          flash.style.height = "12px";
+        }
+
+        effectLayerElement.append(flash);
+        if (typeof flash.animate === "function") {
+          flash.style.animation = "none";
+          const growAxis = direction === "vertical" ? "scaleY" : "scaleX";
+          animations.push(flash.animate(
+            [
+              { opacity: 0, transform: `${growAxis}(0.04)` },
+              { opacity: 1, transform: `${growAxis}(0.45)`, offset: 0.18 },
+              { opacity: 1, transform: `${growAxis}(1)`, offset: 0.72 },
+              { opacity: 0, transform: `${growAxis}(1)` }
+            ],
+            { duration: 430, easing: "ease-out" }
+          ).finished.catch(() => {}));
+        }
+      }
+
+      if (animations.length > 0) {
+        await Promise.all(animations);
+      } else {
+        await wait(430);
+      }
+
+      effectLayerElement.innerHTML = "";
+    }
+
+    async function playBombWave(center, destroyedCells, radius) {
+      const destroyed = new Set(destroyedCells.map(key));
+      if (!boardElement.querySelectorAll) {
+        await wait(360);
+        return;
+      }
+
+      const animations = [];
+      for (const cell of boardElement.querySelectorAll(".cell")) {
+        const position = {
+          row: Number(cell.dataset.row),
+          col: Number(cell.dataset.col)
+        };
+        const gem = cell.querySelector?.(".gem");
+        if (!gem || destroyed.has(key(position)) || typeof gem.animate !== "function") continue;
+
+        const rowDistance = position.row - center.row;
+        const colDistance = position.col - center.col;
+        const dx = Math.sign(colDistance) * (10 + Math.max(0, radius - 1) * 3);
+        const dy = Math.sign(rowDistance) * (10 + Math.max(0, radius - 1) * 3);
+
+        if (dx === 0 && dy === 0) continue;
+
+        animations.push(gem.animate(
+          [
+            { transform: "translate(0, 0)" },
+            { transform: `translate(${dx}px, ${dy}px)`, offset: 0.34 },
+            { transform: `translate(${dx * 0.42}px, ${dy * 0.42}px)`, offset: 0.66 },
+            { transform: `translate(${dx * 0.14}px, ${dy * 0.14}px)`, offset: 0.82 },
+            { transform: "translate(0, 0)" }
+          ],
+          { duration: 390, easing: "cubic-bezier(.18,.82,.2,1)" }
+        ).finished.catch(() => {}));
+      }
+
+      await Promise.all(animations);
+    }
+
+    function startRainbowField() {
+      boardWrapElement?.classList?.add("rainbow-pulse");
+    }
+
+    function stopRainbowField() {
+      boardWrapElement?.classList?.remove("rainbow-pulse");
+    }
+
+    function getBoardEffectMetrics() {
+      const cells = boardElement.querySelectorAll?.(".cell");
+      if (!cells || cells.length < size + 1 || !boardWrapElement?.getBoundingClientRect) return null;
+
+      const wrapBox = boardWrapElement.getBoundingClientRect();
+      const first = cells[0].getBoundingClientRect();
+      const second = cells[1].getBoundingClientRect();
+      const below = cells[size].getBoundingClientRect();
+      const last = cells[cells.length - 1].getBoundingClientRect();
+
+      return {
+        left: first.left - wrapBox.left,
+        top: first.top - wrapBox.top,
+        pitchX: second.left - first.left,
+        pitchY: below.top - first.top,
+        cellWidth: first.width,
+        cellHeight: first.height,
+        boardWidth: last.right - first.left,
+        boardHeight: last.bottom - first.top
+      };
+    }
+
     async function clearCells(cells) {
-      const unique = new Map();
-      for (const cell of cells) unique.set(key(cell), cell);
+      const unique = uniqueCells(cells);
 
       clearingKeys = new Set([...unique.keys()]);
       render();
       await wait(220);
       clearingKeys.clear();
 
+      removeUniqueCells(unique);
+      render();
+    }
+
+    async function clearCellsWithBombWaves(cells, waves) {
+      const unique = uniqueCells(cells);
+      const destroyedCells = [...unique.values()];
+
+      clearingKeys = new Set([...unique.keys()]);
+      render();
+
+      await Promise.all([
+        wait(390),
+        ...waves.map((wave) => playBombWave(wave.center, destroyedCells, wave.radius))
+      ]);
+
+      clearingKeys.clear();
+      removeUniqueCells(unique);
+      render();
+    }
+
+    function uniqueCells(cells) {
+      const unique = new Map();
+      for (const cell of cells) unique.set(key(cell), cell);
+      return unique;
+    }
+
+    function removeUniqueCells(unique) {
       for (const cell of unique.values()) {
         if (board[cell.row][cell.col]) {
           board[cell.row][cell.col] = null;
           addScore(10);
         }
       }
-
-      render();
     }
 
     function captureGemRects() {
@@ -1009,6 +1834,7 @@
 
     function updateScore() {
       scoreElement.textContent = String(score);
+      colorCountElement.textContent = String(unlockedColorCount());
     }
 
     function setMessage(text) {
