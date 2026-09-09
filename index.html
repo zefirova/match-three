@@ -45,15 +45,14 @@
     }
 
     main {
-      width: min(94vw, 760px);
+      width: min(94vw, 620px);
       display: grid;
       gap: 16px;
     }
 
     .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr;
       gap: 14px;
       padding: 14px 16px;
       background: var(--panel-soft);
@@ -74,11 +73,12 @@
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
-      justify-content: flex-end;
+      justify-content: space-between;
     }
 
     .score {
-      min-width: 132px;
+      flex: 1 1 112px;
+      min-width: 112px;
       padding: 9px 12px;
       border: 1px solid var(--line);
       background: var(--panel);
@@ -97,6 +97,7 @@
     }
 
     .new-game {
+      flex: 1 1 132px;
       border: 0;
       background: #f3f5f7;
       color: #101317;
@@ -111,8 +112,7 @@
 
     .game {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 220px;
-      gap: 16px;
+      grid-template-columns: 1fr;
       align-items: start;
     }
 
@@ -448,28 +448,33 @@
       }
     }
 
-    .rules {
-      display: grid;
-      gap: 10px;
-      padding: 14px;
-      background: var(--panel-soft);
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-      font-size: 14px;
-      line-height: 1.35;
-    }
-
-    .rules strong {
+    .rules-content strong {
       font-size: 15px;
     }
 
-    .rules p {
+    .rules-content p {
       margin: 0;
       color: var(--muted);
     }
 
+    .info-button {
+      flex: 1 1 154px;
+      border: 1px solid var(--line);
+      background: #232933;
+      color: var(--ink);
+      padding: 11px 12px;
+      cursor: pointer;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .info-button:hover {
+      background: #2d3540;
+    }
+
     .message {
-      min-height: 22px;
+      display: none;
+      min-height: 0;
       color: #ffffff;
       font-weight: 700;
     }
@@ -491,6 +496,7 @@
 
     .modal-card {
       width: min(92vw, 360px);
+      max-height: min(88vh, 760px);
       display: grid;
       gap: 14px;
       padding: 20px;
@@ -498,6 +504,12 @@
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
       text-align: center;
+      overflow: auto;
+    }
+
+    .modal-card.wide {
+      width: min(94vw, 760px);
+      text-align: left;
     }
 
     .modal-card h2 {
@@ -513,10 +525,157 @@
       font-size: 16px;
     }
 
+    .result-summary {
+      display: grid;
+      gap: 10px;
+    }
+
+    .result-summary[hidden] {
+      display: none;
+    }
+
     .final-score {
       color: var(--ink);
       font-size: 30px;
       font-weight: 850;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .score-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .score-form[hidden],
+    #leaderboardPanel[hidden],
+    #playAgain[hidden] {
+      display: none;
+    }
+
+    .name-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #0f1318;
+      color: var(--ink);
+      padding: 12px;
+      font: inherit;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .name-input:focus {
+      outline: 2px solid #f3f5f7;
+      outline-offset: 2px;
+    }
+
+    .leaderboard {
+      display: grid;
+      gap: 8px;
+      margin: 4px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .leaderboard li {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) 72px;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      background: #11161c;
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .leaderboard li.current-player {
+      border-color: #ffd648;
+      background: rgba(255, 214, 72, 0.12);
+      color: #fff2a8;
+      box-shadow: 0 0 22px rgba(255, 214, 72, 0.16);
+    }
+
+    .leaderboard-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--ink);
+    }
+
+    .leaderboard-status {
+      min-height: 20px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .rules-content {
+      display: grid;
+      gap: 14px;
+    }
+
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+    }
+
+    .rule-card {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: #11161c;
+    }
+
+    .combo-diagram {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 68px;
+    }
+
+    .pattern {
+      display: grid;
+      grid-template-columns: repeat(5, 18px);
+      grid-template-rows: repeat(5, 18px);
+      gap: 3px;
+    }
+
+    .mini {
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #2a3038;
+      color: #ffffff;
+      font-size: 13px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .mini.red {
+      background: var(--red);
+    }
+
+    .mini.yellow {
+      background: var(--yellow);
+      color: #18120a;
+    }
+
+    .mini.special {
+      background: linear-gradient(145deg, #404852, #1e232a);
+    }
+
+    .combo-arrow {
+      color: var(--muted);
+      font-weight: 900;
     }
 
     @media (max-width: 720px) {
@@ -534,12 +693,10 @@
         justify-content: space-between;
       }
 
-      .game {
-        grid-template-columns: 1fr;
-      }
-
-      .rules {
-        order: -1;
+      .score,
+      .new-game,
+      .info-button {
+        flex-basis: calc(50% - 5px);
       }
     }
   </style>
@@ -552,6 +709,7 @@
         <div class="score">Очки: <span id="score">0</span></div>
         <div class="score">Виды: <span id="colorCount">4</span>/6</div>
         <div class="score timer" id="timerBox">Время: <span id="timer">3:00</span></div>
+        <button class="info-button" id="infoButton" type="button">Информация и правила</button>
         <button class="new-game" id="newGame" type="button">Начать игру</button>
       </div>
     </section>
@@ -561,34 +719,170 @@
         <div class="effect-layer" id="effectLayer"></div>
         <div class="board" id="board" aria-label="Игровое поле"></div>
       </div>
-
-      <aside class="rules" aria-label="Правила">
-        <strong>Базовые принципы</strong>
-        <p>Меняй соседние камни местами. Три одинаковых исчезают и дают очки.</p>
-        <p>Четыре одинаковых создают отдельную горизонтальную или вертикальную молнию. Сдвинь ее с соседним камнем, чтобы очистить строку или столбец.</p>
-        <p>Пять одинаковых в линию создают радугу. Т/Г-фигуры создают бомбу: сдвинь ее с соседним камнем, чтобы очистить область 3x3.</p>
-        <p>Спецкамни можно объединять: две молнии чистят крест, бомба+молния чистит 5x5, две радуги чистят все поле.</p>
-        <p>Радуга+молния превращает случайные камни в молнии, радуга+бомба превращает случайные камни в бомбы, затем все они срабатывают.</p>
-        <p>Сначала падают только 4 вида камней. После 1000 очков сверху начинает падать 5-й, после 2000 очков — 6-й.</p>
-        <p>Цепочки после падения усиливают очки: первая очистка x1, следующая x2, потом x3 и выше.</p>
-        <p>Таймер на 3 минуты запускается кнопкой или первым успешным объединением.</p>
-        <div class="message" id="message"></div>
-      </aside>
     </section>
+    <div class="message" id="message" aria-live="polite"></div>
   </main>
 
   <div class="modal" id="endModal" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="endTitle">
-      <h2 id="endTitle">Время закончилось</h2>
-      <p>Ваш счет</p>
-      <div class="final-score" id="finalScore">0</div>
+      <section class="result-summary" id="resultSummary">
+        <h2 id="endTitle">Время закончилось</h2>
+        <p>Ваш счет</p>
+        <div class="final-score" id="finalScore">0</div>
+      </section>
+      <form class="score-form" id="scoreForm">
+        <label for="playerName">Имя или ник</label>
+        <input class="name-input" id="playerName" maxlength="15" autocomplete="nickname" placeholder="до 15 символов" required>
+        <button class="new-game" id="saveScore" type="submit">Записать результат</button>
+      </form>
+      <section id="leaderboardPanel" hidden>
+        <h3 id="leaderboardTitle">Таблица лидеров</h3>
+        <ol class="leaderboard" id="leaderboardList"></ol>
+        <p class="leaderboard-status" id="leaderboardStatus"></p>
+      </section>
       <button class="new-game" id="playAgain" type="button">Сыграть еще</button>
+    </div>
+  </div>
+
+  <div class="modal" id="infoModal" hidden>
+    <div class="modal-card wide" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+      <div class="rules-content">
+        <h2 id="infoTitle">Правила и комбинации</h2>
+        <p>Меняй соседние камни местами. Если ход собирает комбинацию, камни исчезают, сверху падают новые, а цепочки усиливают множитель очков.</p>
+        <div class="rules-grid">
+          <article class="rule-card">
+            <strong>Три в ряд</strong>
+            <div class="combo-diagram">
+              <div class="pattern" aria-hidden="true">
+                <span class="mini red" style="grid-column: 1; grid-row: 3;"></span>
+                <span class="mini red" style="grid-column: 2; grid-row: 3;"></span>
+                <span class="mini red" style="grid-column: 3; grid-row: 3;"></span>
+              </div>
+              <span class="combo-arrow">→</span>
+              <span>камни исчезают и дают очки</span>
+            </div>
+          </article>
+          <article class="rule-card">
+            <strong>Четыре в ряд</strong>
+            <div class="combo-diagram">
+              <div class="pattern" aria-hidden="true">
+                <span class="mini yellow" style="grid-column: 1; grid-row: 3;"></span>
+                <span class="mini yellow" style="grid-column: 2; grid-row: 3;"></span>
+                <span class="mini yellow" style="grid-column: 3; grid-row: 3;"></span>
+                <span class="mini yellow" style="grid-column: 4; grid-row: 3;"></span>
+              </div>
+              <span class="combo-arrow">→</span>
+              <span class="mini special">⚡</span>
+            </div>
+            <p>Создается горизонтальная или вертикальная молния. При сдвиге очищает свою линию.</p>
+          </article>
+          <article class="rule-card">
+            <strong>Пять в ряд</strong>
+            <div class="combo-diagram">
+              <div class="pattern" aria-hidden="true">
+                <span class="mini red" style="grid-column: 1; grid-row: 3;"></span>
+                <span class="mini red" style="grid-column: 2; grid-row: 3;"></span>
+                <span class="mini red" style="grid-column: 3; grid-row: 3;"></span>
+                <span class="mini red" style="grid-column: 4; grid-row: 3;"></span>
+                <span class="mini red" style="grid-column: 5; grid-row: 3;"></span>
+              </div>
+              <span class="combo-arrow">→</span>
+              <span class="mini special">🌈</span>
+            </div>
+            <p>Радуга уничтожает все камни цвета, с которым ее поменяли местами.</p>
+          </article>
+          <article class="rule-card">
+            <strong>Буква Т</strong>
+            <div class="combo-diagram">
+              <div class="pattern" aria-hidden="true">
+                <span class="mini yellow" style="grid-column: 2; grid-row: 2;"></span>
+                <span class="mini yellow" style="grid-column: 3; grid-row: 2;"></span>
+                <span class="mini yellow" style="grid-column: 4; grid-row: 2;"></span>
+                <span class="mini yellow" style="grid-column: 3; grid-row: 3;"></span>
+                <span class="mini yellow" style="grid-column: 3; grid-row: 4;"></span>
+              </div>
+              <span class="combo-arrow">→</span>
+              <span class="mini special">💣</span>
+            </div>
+            <p>Бомба очищает область 3x3. Если задевает молнию, запускает ее; если задевает радугу, удаляет случайный камень.</p>
+          </article>
+          <article class="rule-card">
+            <strong>Буква Г</strong>
+            <div class="combo-diagram">
+              <div class="pattern" aria-hidden="true">
+                <span class="mini red" style="grid-column: 2; grid-row: 2;"></span>
+                <span class="mini red" style="grid-column: 2; grid-row: 3;"></span>
+                <span class="mini red" style="grid-column: 2; grid-row: 4;"></span>
+                <span class="mini red" style="grid-column: 3; grid-row: 4;"></span>
+                <span class="mini red" style="grid-column: 4; grid-row: 4;"></span>
+              </div>
+              <span class="combo-arrow">→</span>
+              <span class="mini special">💣</span>
+            </div>
+            <p>Работает так же, как Т-фигура: создает отдельную бомбу.</p>
+          </article>
+          <article class="rule-card">
+            <strong>Молния + молния</strong>
+            <div class="combo-diagram">
+              <span class="mini special">⚡</span>
+              <span class="mini special">⚡</span>
+              <span class="combo-arrow">→</span>
+              <span>строка и столбец крестом</span>
+            </div>
+            <p>Если молния задевает другую молнию, та срабатывает перпендикулярно линии, которая ее зацепила.</p>
+          </article>
+          <article class="rule-card">
+            <strong>Бомба + молния</strong>
+            <div class="combo-diagram">
+              <span class="mini special">💣</span>
+              <span class="mini special">⚡</span>
+              <span class="combo-arrow">→</span>
+              <span>область 5x5</span>
+            </div>
+          </article>
+          <article class="rule-card">
+            <strong>Радуга + спецкамень</strong>
+            <div class="combo-diagram">
+              <span class="mini special">🌈</span>
+              <span class="mini special">⚡</span>
+              <span class="mini special">💣</span>
+              <span class="combo-arrow">→</span>
+              <span>случайные молнии или бомбы</span>
+            </div>
+          </article>
+          <article class="rule-card">
+            <strong>Радуга + радуга</strong>
+            <div class="combo-diagram">
+              <span class="mini special">🌈</span>
+              <span class="mini special">🌈</span>
+              <span class="combo-arrow">→</span>
+              <span>очистка всего поля</span>
+            </div>
+          </article>
+        </div>
+        <p>Сначала падают только 4 вида камней. После 1000 очков открывается 5-й, после 2000 очков — 6-й. Таймер идет 3 минуты.</p>
+        <div class="modal-actions">
+          <button class="new-game" id="closeInfo" type="button">Закрыть</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
     const size = 8;
     const gameDuration = 180;
+    const firebaseSdkVersion = "12.18.0";
+    const leaderboardCollectionName = "match3_leaderboard";
+    const localLeaderboardKey = "match3Leaderboard";
+    const firebaseConfig = {
+      apiKey: "AIzaSyASpjc8k0GmG13EjVotYdR3H2x5ZuZOdKw",
+      authDomain: "implecs-match3.firebaseapp.com",
+      projectId: "implecs-match3",
+      storageBucket: "implecs-match3.firebasestorage.app",
+      messagingSenderId: "316663402770",
+      appId: "1:316663402770:web:3dbe36d816837d2f33e3cb",
+      measurementId: "G-B041P38LH9"
+    };
     const colors = 6;
     const boardWrapElement = document.querySelector("#boardWrap");
     const effectLayerElement = document.querySelector("#effectLayer");
@@ -600,8 +894,18 @@
     const messageElement = document.querySelector("#message");
     const newGameButton = document.querySelector("#newGame");
     const endModalElement = document.querySelector("#endModal");
+    const resultSummaryElement = document.querySelector("#resultSummary");
     const finalScoreElement = document.querySelector("#finalScore");
     const playAgainButton = document.querySelector("#playAgain");
+    const scoreFormElement = document.querySelector("#scoreForm");
+    const playerNameElement = document.querySelector("#playerName");
+    const saveScoreButton = document.querySelector("#saveScore");
+    const leaderboardPanelElement = document.querySelector("#leaderboardPanel");
+    const leaderboardListElement = document.querySelector("#leaderboardList");
+    const leaderboardStatusElement = document.querySelector("#leaderboardStatus");
+    const infoButton = document.querySelector("#infoButton");
+    const infoModalElement = document.querySelector("#infoModal");
+    const closeInfoButton = document.querySelector("#closeInfo");
 
     let board = [];
     let selected = null;
@@ -613,6 +917,10 @@
     let timerId = null;
     let comboMultiplier = 1;
     let comboTotal = 0;
+    let leaderboardDb = null;
+    let currentLeaderboardEntry = null;
+    let scoreSubmitted = false;
+    let loadedFirebaseScripts = null;
     let nextGemId = 1;
     let clearingKeys = new Set();
     let dragStart = null;
@@ -645,6 +953,7 @@
       timeLeft = gameDuration;
       comboMultiplier = 1;
       comboTotal = 0;
+      scoreSubmitted = false;
       nextGemId = 1;
       clearingKeys.clear();
       dragStart = null;
@@ -671,7 +980,7 @@
       updateScore();
       updateTimer();
       newGameButton.textContent = startImmediately ? "Новая игра" : "Начать игру";
-      setMessage(startImmediately ? "Время пошло." : "Собери первую комбинацию или нажми начать игру.");
+      setMessage("");
       render();
 
       if (startImmediately) {
@@ -1494,14 +1803,12 @@
     }
 
     async function clearLightning(position, direction, extraCells = []) {
-      const cleared = [...extraCells, ...lightningCells(position, direction)];
       if (direction === true || direction === "horizontal") {
         setMessage("Молния очистила строку.");
       } else {
         setMessage("Молния очистила столбец.");
       }
-      await playLightningEffects([{ position, direction }]);
-      await clearCells(cleared);
+      await clearSpecialChain([{ type: "lightning", position, direction, force: true }], extraCells);
     }
 
     function lightningCells(position, direction) {
@@ -1516,16 +1823,14 @@
     }
 
     async function clearLightningCross(center, extraPosition = null) {
-      const cleared = [];
-      for (let col = 0; col < size; col += 1) cleared.push({ row: center.row, col });
-      for (let row = 0; row < size; row += 1) cleared.push({ row, col: center.col });
-      if (extraPosition) cleared.push(extraPosition);
       setMessage("Две молнии очистили строку и столбец.");
-      await playLightningEffects([
-        { position: center, direction: "horizontal" },
-        { position: center, direction: "vertical" }
-      ]);
-      await clearCells(cleared);
+      await clearSpecialChain(
+        [
+          { type: "lightning", position: center, direction: "horizontal", force: true },
+          { type: "lightning", position: center, direction: "vertical", force: true }
+        ],
+        extraPosition ? [extraPosition] : []
+      );
     }
 
     async function clearRainbowLightning(rainbowPosition, lightningPosition, lightningGem) {
@@ -1539,18 +1844,17 @@
       const activeLightnings = [lightningPosition, ...transformed];
       const cleared = [rainbowPosition, lightningPosition];
 
-      for (const position of activeLightnings) {
-        const special = board[position.row][position.col]?.special || lightningGem.special;
-        cleared.push(...lightningCells(position, lightningDirection(special)));
-      }
-
       setMessage("Молнии сработали одновременно.");
-      await playLightningEffects(activeLightnings.map((position) => ({
-        position,
-        direction: lightningDirection(board[position.row][position.col]?.special || lightningGem.special)
-      })));
+      await clearSpecialChain(
+        activeLightnings.map((position) => ({
+          type: "lightning",
+          position,
+          direction: lightningDirection(board[position.row][position.col]?.special || lightningGem.special),
+          force: true
+        })),
+        cleared
+      );
       stopRainbowField();
-      await clearCells(cleared);
     }
 
     async function clearRainbowBomb(rainbowPosition, bombPosition) {
@@ -1564,14 +1868,10 @@
       const activeBombs = [bombPosition, ...transformed];
       const cleared = [rainbowPosition, bombPosition];
 
-      for (const position of activeBombs) {
-        cleared.push(...bombCells(position));
-      }
-
       setMessage("Бомбы сработали одновременно.");
-      await clearCellsWithBombWaves(
-        cleared,
-        activeBombs.map((position) => ({ center: position, radius: 1 }))
+      await clearSpecialChain(
+        activeBombs.map((position) => ({ type: "bomb", position, radius: 1, force: true })),
+        cleared
       );
       stopRainbowField();
     }
@@ -1585,16 +1885,16 @@
     }
 
     async function clearBigBomb(center, extraPosition = null) {
-      const cleared = [...squareCells(center, 2)];
-      if (extraPosition) cleared.push(extraPosition);
       setMessage("Бомба и молния очистили область 5x5.");
-      await clearCellsWithBombWaves(cleared, [{ center, radius: 2 }]);
+      await clearSpecialChain(
+        [{ type: "bomb", position: center, radius: 2, force: true }],
+        extraPosition ? [extraPosition] : []
+      );
     }
 
     async function clearBomb(position, extraCells = []) {
-      const cleared = [...extraCells, ...bombCells(position)];
       setMessage("Бомба очистила область.");
-      await clearCellsWithBombWaves(cleared, [{ center: position, radius: 1 }]);
+      await clearSpecialChain([{ type: "bomb", position, radius: 1, force: true }], extraCells);
     }
 
     function bombCells(position) {
@@ -1629,6 +1929,141 @@
         }
       }
       return cells;
+    }
+
+    async function clearSpecialChain(seedActivations, extraCells = []) {
+      const chain = resolveSpecialChain(seedActivations, extraCells);
+      await clearCellsWithSpecialEffects(chain.cells, chain.steps);
+    }
+
+    function resolveSpecialChain(seedActivations, extraCells = []) {
+      const cleared = uniqueCells(extraCells);
+      const activatedSpecials = new Set();
+      const steps = [];
+      let queue = [...seedActivations];
+
+      while (queue.length > 0) {
+        const nextQueue = [];
+        const step = {
+          lines: [],
+          bombs: [],
+          rainbowHits: []
+        };
+
+        for (const activation of queue) {
+          if (!isInsideBoard(activation.position)) continue;
+
+          const activationKey = key(activation.position);
+          if (!activation.force && activatedSpecials.has(activationKey)) continue;
+          activatedSpecials.add(activationKey);
+          cleared.set(activationKey, activation.position);
+
+          if (activation.type === "lightning") {
+            const direction = normalizeLightningDirection(activation.direction);
+            const cells = lightningCells(activation.position, direction);
+            step.lines.push({ position: activation.position, direction });
+            addCellsToMap(cleared, cells);
+            queueTouchedLightningReactions(cells, direction, nextQueue, activatedSpecials);
+          }
+
+          if (activation.type === "bomb") {
+            const radius = activation.radius || 1;
+            const cells = squareCells(activation.position, radius);
+            step.bombs.push({ center: activation.position, radius });
+            addCellsToMap(cleared, cells);
+            queueTouchedBombReactions(cells, nextQueue, activatedSpecials, cleared);
+          }
+
+          if (activation.type === "rainbow-pick") {
+            step.rainbowHits.push(activation.position);
+            const randomCell = randomGemCell(cleared);
+            if (randomCell) cleared.set(key(randomCell), randomCell);
+          }
+        }
+
+        if (step.lines.length > 0 || step.bombs.length > 0 || step.rainbowHits.length > 0) {
+          steps.push(step);
+        }
+
+        queue = nextQueue;
+      }
+
+      return {
+        cells: [...cleared.values()],
+        steps
+      };
+    }
+
+    function queueTouchedLightningReactions(cells, triggerDirection, queue, activatedSpecials) {
+      for (const cell of cells) {
+        const gem = board[cell.row][cell.col];
+        const cellKey = key(cell);
+        if (!isLightningSpecial(gem?.special) || activatedSpecials.has(cellKey)) continue;
+
+        queue.push({
+          type: "lightning",
+          position: cell,
+          direction: perpendicularDirection(triggerDirection)
+        });
+      }
+    }
+
+    function queueTouchedBombReactions(cells, queue, activatedSpecials, cleared) {
+      for (const cell of cells) {
+        const gem = board[cell.row][cell.col];
+        const cellKey = key(cell);
+        if (!gem?.special || activatedSpecials.has(cellKey)) continue;
+
+        if (isLightningSpecial(gem.special)) {
+          queue.push({
+            type: "lightning",
+            position: cell,
+            direction: lightningDirection(gem.special)
+          });
+        } else if (gem.special === "rainbow") {
+          queue.push({
+            type: "rainbow-pick",
+            position: cell
+          });
+          cleared.set(cellKey, cell);
+        }
+      }
+    }
+
+    function addCellsToMap(map, cells) {
+      for (const cell of cells) {
+        map.set(key(cell), cell);
+      }
+    }
+
+    function randomGemCell(excludedCells) {
+      const candidates = [];
+      const fallbackCandidates = [];
+      for (let row = 0; row < size; row += 1) {
+        for (let col = 0; col < size; col += 1) {
+          const cell = { row, col };
+          const gem = board[row][col];
+          if (excludedCells.has(key(cell)) || !gem) continue;
+          fallbackCandidates.push(cell);
+          if (!gem.special) candidates.push(cell);
+        }
+      }
+
+      const source = candidates.length > 0 ? candidates : fallbackCandidates;
+      if (source.length === 0) return null;
+      return source[Math.floor(Math.random() * source.length)];
+    }
+
+    function normalizeLightningDirection(direction) {
+      return direction === true || direction === "horizontal" ? "horizontal" : "vertical";
+    }
+
+    function perpendicularDirection(direction) {
+      return normalizeLightningDirection(direction) === "horizontal" ? "vertical" : "horizontal";
+    }
+
+    function isInsideBoard(cell) {
+      return cell && cell.row >= 0 && cell.row < size && cell.col >= 0 && cell.col < size;
     }
 
     async function transformRandomGems(count, specialFactory, excludedCells, message) {
@@ -1827,6 +2262,49 @@
         wait(390),
         ...waves.map((wave) => playBombWave(wave.center, destroyedCells, wave.radius))
       ]);
+
+      clearingKeys.clear();
+      removeUniqueCells(unique);
+      render();
+    }
+
+    async function clearCellsWithSpecialEffects(cells, steps) {
+      const unique = uniqueCells(cells);
+      const destroyedCells = [...unique.values()];
+
+      clearingKeys = new Set([...unique.keys()]);
+      render();
+
+      if (steps.length === 0) {
+        await wait(220);
+      } else {
+        let rainbowPulseActive = false;
+
+        for (const step of steps) {
+          if (step.rainbowHits.length > 0 && !rainbowPulseActive) {
+            startRainbowField();
+            rainbowPulseActive = true;
+          }
+
+          const effects = [];
+          if (step.lines.length > 0) {
+            effects.push(playLightningEffects(step.lines));
+          }
+          for (const bomb of step.bombs) {
+            effects.push(playBombWave(bomb.center, destroyedCells, bomb.radius));
+          }
+          if (step.rainbowHits.length > 0) {
+            effects.push(wait(260));
+          }
+
+          await Promise.all(effects.length > 0 ? effects : [wait(180)]);
+          await wait(70);
+        }
+
+        if (rainbowPulseActive) {
+          stopRainbowField();
+        }
+      }
 
       clearingKeys.clear();
       removeUniqueCells(unique);
@@ -2041,10 +2519,22 @@
       stopRainbowField();
       updateTimer();
       finalScoreElement.textContent = String(score);
+      currentLeaderboardEntry = null;
+      scoreSubmitted = false;
+      endModalElement.querySelector("[role='dialog']")?.setAttribute("aria-labelledby", "endTitle");
+      resultSummaryElement.hidden = false;
+      scoreFormElement.hidden = false;
+      playerNameElement.value = "";
+      saveScoreButton.disabled = false;
+      leaderboardPanelElement.hidden = true;
+      leaderboardListElement.innerHTML = "";
+      leaderboardStatusElement.textContent = "";
+      playAgainButton.hidden = false;
       endModalElement.hidden = false;
       newGameButton.textContent = "Начать заново";
       setMessage("Время закончилось.", true);
       render();
+      setTimeout(() => playerNameElement.focus(), 0);
     }
 
     function finishMove(shouldRender = true) {
@@ -2068,6 +2558,232 @@
 
     function hideEndModal() {
       endModalElement.hidden = true;
+      currentLeaderboardEntry = null;
+      resultSummaryElement.hidden = false;
+      scoreFormElement.hidden = false;
+      saveScoreButton.disabled = false;
+      leaderboardPanelElement.hidden = true;
+      leaderboardListElement.innerHTML = "";
+      leaderboardStatusElement.textContent = "";
+      playAgainButton.hidden = false;
+    }
+
+    async function submitScore(event) {
+      event.preventDefault();
+      if (scoreSubmitted || currentLeaderboardEntry) return;
+
+      const playerName = sanitizePlayerName(playerNameElement.value);
+
+      scoreSubmitted = true;
+      playerNameElement.value = playerName;
+      saveScoreButton.disabled = true;
+      leaderboardStatusElement.textContent = "Записываем результат...";
+
+      try {
+        currentLeaderboardEntry = await saveLeaderboardEntry(playerName, score);
+        showLeaderboardOnly();
+        await showLeaderboard(currentLeaderboardEntry);
+      } catch (error) {
+        currentLeaderboardEntry = saveLocalLeaderboardEntry(makeLeaderboardEntry(playerName, score));
+        showLeaderboardOnly();
+        await showLeaderboard(currentLeaderboardEntry, "Не удалось подключиться к общей таблице. Показан локальный результат.");
+      } finally {
+        saveScoreButton.disabled = scoreSubmitted;
+      }
+    }
+
+    function sanitizePlayerName(value) {
+      const clean = value.trim().replace(/\s+/g, " ").slice(0, 15);
+      return clean || "Игрок";
+    }
+
+    function showLeaderboardOnly() {
+      endModalElement.querySelector("[role='dialog']")?.setAttribute("aria-labelledby", "leaderboardTitle");
+      resultSummaryElement.hidden = true;
+      scoreFormElement.hidden = true;
+      leaderboardPanelElement.hidden = false;
+      playAgainButton.hidden = true;
+    }
+
+    async function saveLeaderboardEntry(name, scoreValue) {
+      const entry = makeLeaderboardEntry(name, scoreValue);
+
+      if (isFirebaseConfigured()) {
+        await initFirebaseLeaderboard();
+        const doc = await leaderboardDb.collection(leaderboardCollectionName).add({
+          name: entry.name,
+          score: entry.score,
+          createdAt: window.firebase.firestore.FieldValue.serverTimestamp(),
+          createdAtMs: entry.createdAtMs
+        });
+        entry.id = doc.id;
+        entry.shared = true;
+        return entry;
+      }
+
+      return saveLocalLeaderboardEntry(entry);
+    }
+
+    function makeLeaderboardEntry(name, scoreValue) {
+      return {
+        id: makeEntryId(),
+        name,
+        score: scoreValue,
+        createdAtMs: Date.now(),
+        shared: false
+      };
+    }
+
+    function makeEntryId() {
+      if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function isFirebaseConfigured() {
+      return Boolean(firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId);
+    }
+
+    async function initFirebaseLeaderboard() {
+      if (leaderboardDb) return leaderboardDb;
+
+      await loadFirebaseScripts();
+      if (!window.firebase.apps.length) {
+        window.firebase.initializeApp(firebaseConfig);
+      }
+
+      leaderboardDb = window.firebase.firestore();
+      return leaderboardDb;
+    }
+
+    function loadFirebaseScripts() {
+      if (loadedFirebaseScripts) return loadedFirebaseScripts;
+
+      loadedFirebaseScripts = loadScript(`https://www.gstatic.com/firebasejs/${firebaseSdkVersion}/firebase-app-compat.js`)
+        .then(() => loadScript(`https://www.gstatic.com/firebasejs/${firebaseSdkVersion}/firebase-firestore-compat.js`));
+      return loadedFirebaseScripts;
+    }
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        if (Array.from(document.scripts).some((script) => script.src === src)) {
+          resolve();
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.append(script);
+      });
+    }
+
+    function saveLocalLeaderboardEntry(entry) {
+      const entries = getLocalLeaderboardEntries();
+      entries.push(entry);
+      localStorage.setItem(localLeaderboardKey, JSON.stringify(entries.slice(-500)));
+      return entry;
+    }
+
+    function getLocalLeaderboardEntries() {
+      try {
+        return JSON.parse(localStorage.getItem(localLeaderboardKey) || "[]");
+      } catch (error) {
+        return [];
+      }
+    }
+
+    async function showLeaderboard(currentEntry, fallbackStatus = "") {
+      leaderboardListElement.innerHTML = "";
+      leaderboardPanelElement.hidden = false;
+
+      const leaderboard = currentEntry.shared
+        ? await getFirebaseLeaderboard(currentEntry)
+        : getLocalLeaderboard(currentEntry);
+
+      renderLeaderboard(leaderboard.entries, currentEntry.id);
+      leaderboardStatusElement.textContent = fallbackStatus || leaderboard.status;
+    }
+
+    async function getFirebaseLeaderboard(currentEntry) {
+      const snapshot = await leaderboardDb
+        .collection(leaderboardCollectionName)
+        .orderBy("score", "desc")
+        .limit(10)
+        .get();
+      const entries = snapshot.docs.map((doc, index) => ({
+        id: doc.id,
+        rank: index + 1,
+        name: doc.data().name,
+        score: doc.data().score
+      }));
+      const hasCurrent = entries.some((entry) => entry.id === currentEntry.id);
+
+      if (!hasCurrent) {
+        const betterScores = await leaderboardDb
+          .collection(leaderboardCollectionName)
+          .where("score", ">", currentEntry.score)
+          .get();
+        entries.push({ ...currentEntry, rank: betterScores.size + 1 });
+      }
+
+      return {
+        entries,
+        status: currentEntry.shared ? "Результат записан в общую таблицу." : "Показана локальная таблица."
+      };
+    }
+
+    function getLocalLeaderboard(currentEntry) {
+      const sorted = getLocalLeaderboardEntries()
+        .sort((a, b) => b.score - a.score || a.createdAtMs - b.createdAtMs);
+      const entries = sorted.slice(0, 10).map((entry, index) => ({ ...entry, rank: index + 1 }));
+      const currentIndex = sorted.findIndex((entry) => entry.id === currentEntry.id);
+
+      if (currentIndex >= 10) {
+        entries.push({ ...currentEntry, rank: currentIndex + 1 });
+      }
+
+      return {
+        entries,
+        status: isFirebaseConfigured()
+          ? "Показана локальная таблица."
+          : "Firebase пока не настроен: результат сохранен только на этом устройстве."
+      };
+    }
+
+    function renderLeaderboard(entries, currentId) {
+      if (entries.length === 0) {
+        const empty = document.createElement("li");
+        empty.textContent = "Пока нет результатов";
+        leaderboardListElement.append(empty);
+        return;
+      }
+
+      for (const entry of entries) {
+        const item = document.createElement("li");
+        const rank = document.createElement("span");
+        const name = document.createElement("span");
+        const points = document.createElement("span");
+
+        if (entry.id === currentId) item.classList.add("current-player");
+        rank.textContent = `#${entry.rank}`;
+        name.className = "leaderboard-name";
+        name.textContent = sanitizePlayerName(String(entry.name || "Игрок"));
+        points.textContent = String(Number(entry.score) || 0);
+
+        item.append(rank, name, points);
+        leaderboardListElement.append(item);
+      }
+    }
+
+    function showInfoModal() {
+      infoModalElement.hidden = false;
+      closeInfoButton.focus();
+    }
+
+    function hideInfoModal() {
+      infoModalElement.hidden = true;
+      infoButton.focus();
     }
 
     function showComboScore(points, multiplier) {
@@ -2126,10 +2842,32 @@
 
     newGameButton.addEventListener("click", () => startGame(true));
     playAgainButton.addEventListener("click", () => startGame(true));
+    scoreFormElement.addEventListener("submit", submitScore);
+    playerNameElement.addEventListener("input", () => {
+      playerNameElement.value = playerNameElement.value.slice(0, 15);
+    });
+    infoButton.addEventListener("click", showInfoModal);
+    closeInfoButton.addEventListener("click", hideInfoModal);
+    endModalElement.addEventListener("click", (event) => {
+      if (event.target === endModalElement && currentLeaderboardEntry) {
+        hideEndModal();
+      }
+    });
+    infoModalElement.addEventListener("click", (event) => {
+      if (event.target === infoModalElement) hideInfoModal();
+    });
     if (document.addEventListener) {
       document.addEventListener("pointermove", trackDrag);
       document.addEventListener("pointerup", finishDrag);
       document.addEventListener("pointercancel", finishDrag);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !infoModalElement.hidden) {
+          hideInfoModal();
+        }
+        if (event.key === "Escape" && !endModalElement.hidden && currentLeaderboardEntry) {
+          hideEndModal();
+        }
+      });
     }
     startGame(false);
   </script>
